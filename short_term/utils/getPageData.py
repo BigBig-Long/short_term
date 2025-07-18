@@ -1,4 +1,5 @@
 from utils.getPublicData import cityList
+import re
 from model.History import History
 from model.User import User
 def getHomeGeoCharData(hourse_data):
@@ -96,10 +97,39 @@ def average_price(hourse_data,type='city'):
 
     return average_prices
 
+
 def getPriceCharDataTwo(hourseList):
-    average_pricesData = average_price(hourseList,'open_date')
-    sorted_data = list(sorted(average_pricesData.items(),key=lambda x:x[0],reverse=True))
-    return [x[0] for x in sorted_data],[x[1] for x in sorted_data]
+    average_pricesData = average_price(hourseList, 'open_date')
+
+    valid_entries = {
+        date: price for date, price in average_pricesData.items()
+        if is_valid_date(date)  # 调用有效性校验函数
+    }
+    # 按时间升序排序
+    sorted_data = sorted(valid_entries.items(), key=lambda x: x[0], reverse=False)
+
+    dates = [x[0] for x in sorted_data]
+    prices = [x[1] for x in sorted_data]
+    return dates, prices
+
+
+# 辅助函数：校验日期有效性（示例）
+def is_valid_date(date_str):
+    try:
+        # 校验格式：YYYY-MM-DD（允许19/20开头的年份）
+        if not re.match(r'^\d{4}-\d{2}-\d{2}$', date_str):
+            return False
+        year, month, day = map(int, date_str.split('-'))
+        if month < 1 or month > 12 or day < 1 or day > 31:
+            return False
+        # 校验闰年2月（可选）
+        if month == 2 and day > 29:
+            return False
+        if month in [4, 6, 9, 11] and day > 30:
+            return False
+        return True
+    except:
+        return False
 
 def getPriceCharDataThree(hourseList):
     data = []
