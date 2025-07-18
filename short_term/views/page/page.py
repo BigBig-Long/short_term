@@ -6,6 +6,12 @@ import uuid
 import os
 from app import app
 from pred import index
+
+from short_term.utils.Test import GET_hourse_type_List, Get_Louceng_Data, Get_cycleOption, Get_priceTrend_Option, \
+    Get_crossAnalysisData, Get_averagePrice, Get_averageTime, get_hottest_community, district_counts, \
+    get_building_type_counts, Get_priceAreaData
+from short_term.utils.getPageData import average_price
+
 pb = Blueprint('page',__name__,url_prefix='/page',template_folder='templates')
 
 @pb.route('/home')
@@ -180,12 +186,47 @@ def anthorChar():
 @pb.route('/companyCloud',methods=['GET'])
 def companyCloud():
     username = session.get('username')
-    return render_template('companyCloud.html',username=username)
+    hourse_type_List = GET_hourse_type_List()
+    Louceng_Data = Get_Louceng_Data()
+    cycleOption_Data =  Get_cycleOption()
+    price_data = Get_priceTrend_Option()
+    crossAnalysisData  = Get_crossAnalysisData()
+
+    # print(hourse_type_List)
+    return render_template(
+        'companyCloud.html',
+        username=username,
+        hourse_type_List=hourse_type_List,
+        Louceng_Data=Louceng_Data,
+        cycleOption_Data=cycleOption_Data,
+        transaction_price=price_data['transaction_price'],
+        listing_price=price_data['listing_price'],
+        crossAnalysisData=crossAnalysisData,
+        average_price=average_price,
+    )
 
 @pb.route('/tagCloud',methods=['GET'])
 def tagCloud():
     username = session.get('username')
-    return render_template('tagCloud.html',username=username)
+    average_price = Get_averagePrice()
+    averageTime = Get_averageTime()
+    hottest_community, heat_index  = get_hottest_community()
+    districts, counts = district_counts()
+    building_type_counts = get_building_type_counts()
+    priceAreaData = Get_priceAreaData()
+    print(building_type_counts)
+    return render_template(
+        'tagCloud.html',
+        username=username,
+        average_price=average_price,
+        averageTime=averageTime,
+        hottest_community=hottest_community,
+        heat_index=heat_index,
+        districts=districts,
+        counts=counts,
+        priceAreaData = Get_priceAreaData(),
+        building_type_counts=building_type_counts,
+    )
 
 @pb.route('/pricePred',methods=['GET','POST'])
 def pricePred():

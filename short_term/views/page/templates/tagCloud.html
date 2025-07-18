@@ -15,9 +15,108 @@
         <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
         <link href="/static/css/icons.min.css" rel="stylesheet" type="text/css">
         <link href="/static/css/app.min.css" rel="stylesheet" type="text/css">
-
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     </head>
-
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .chart-box {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            flex: 1;
+            min-width: 300px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .chart-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .chart {
+            height: 320px;
+            width: 100%;
+        }
+        .description {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            line-height: 1.7;
+            color: #555;
+        }
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .info-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            flex: 1;
+            margin: 0 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+        .info-card h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+        .info-card p {
+            margin: 10px 0 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .trend-up {
+            color: #27ae60;
+        }
+        .trend-down {
+            color: #e74c3c;
+        }
+    </style>
     <body data-topbar="colored">
 
         <!-- Begin page -->
@@ -160,24 +259,17 @@
                                     <span>房价预测</span>
                                 </a>
                             </li>
-
-
-
                         </ul>
-
                     </div>
                     <!-- Sidebar -->
                 </div>
             </div>
             <!-- Left Sidebar End -->
-
             <!-- ============================================================== -->
             <!-- Start right Content here -->
             <!-- ============================================================== -->
             <div class="main-content">
-
                 <div class="page-content">
-
                     <!-- Page-Title -->
                     <div class="page-title-box">
                         <div class="container-fluid">
@@ -190,7 +282,6 @@
                                     </ol>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                     <!-- end page title end breadcrumb -->
@@ -201,377 +292,319 @@
                                 <div class="col-12">
                                     <div class="card">
                                         <div class="card-body">
-                                            <h4 class="header-title">标签词云图</h4>
-                                            <div id="main" style="width: 100%;height:675px;text-align:center">
-                                                <img style="width:50%" src="/static/tag_cloud.jpg" alt="">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> <!-- end row -->
-
-                        </div>
-                        <!-- end container-fluid -->
-                    </div>
-                    <!-- end page-content-wrapper -->
-                </div>
-                <!-- End Page-content -->
-
-
-                <footer class="footer">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-sm-6">
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="text-sm-right d-none d-sm-block">
-                                    Copyright &copy; 2024<a target="_blank" href="#">链家网房屋数据分析预测系统</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
+<div class="container">
+        <h1>市场热度分析</h1>
+        <div class="header-info">
+            <div class="info-card">
+                <h3>平均成交价</h3>
+                <p class="trend-up">¥{{ average_price }} 万元</p>
             </div>
-            <!-- end main content-->
-
+            <div class="info-card">
+                <h3>最热小区</h3>
+                <p class="trend-up">MVP {{ hottest_community }}</p>
+            </div>
+            <div class="info-card">
+                <h3>平均成交周期</h3>
+                <p class="trend-down">-{{ averageTime }} 天-</p>
+            </div>
+            <div class="info-card">
+                <h3>市场热度指数</h3>
+                <p class="trend-up">-{{ heat_index }}-</p>
+            </div>
         </div>
-        <!-- END layout-wrapper -->
 
-        <!-- Right Sidebar -->
-        <div class="right-bar">
-            <div data-simplebar="" class="h-100">
+        <div class="description">
+            <p>以下图表从多个维度分析市场热度，包括价格趋势、区域热度、建筑类型偏好、市场供需关系等。通过这些图表可以全面了解当前房地产市场的活跃程度和趋势变化。</p>
+        </div>
 
-                <!-- Nav tabs -->
-                <ul class="nav nav-tabs nav-tabs-custom rightbar-nav-tab nav-justified" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link py-3 active" data-toggle="tab" href="#chat-tab" role="tab">
-                            <i class="mdi mdi-message-text font-size-22"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link py-3" data-toggle="tab" href="#tasks-tab" role="tab">
-                            <i class="mdi mdi-format-list-checkbox font-size-22"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link py-3" data-toggle="tab" href="#settings-tab" role="tab">
-                            <i class="mdi mdi-settings font-size-22"></i>
-                        </a>
-                    </li>
-                </ul>
+          <div class="chart-container">
+            <div class="chart-box" style="width: 100%">
+                <div class="chart-title" style="width: 100%">区域热度对比</div>
+                <div id="areaHeatChart" class="chart"></div>
+            </div>
+            <div class="chart-box">
+                <div class="chart-title">建筑类型偏好</div>
+                <div id="buildingTypeChart" class="chart"></div>
+            </div>
+              <div class="chart-box">
+                <div class="chart-title">成交价格与面积的关系</div>
+                <div id="priceAreaChart" class="chart"></div>
+            </div>
+              <div class="chart-box">
+                <div class="chart-title" >成交渠道转化漏斗</div>
+                <div id="funnelChart" class="chart"></div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Tab panes -->
-                <div class="tab-content text-muted">
-                    <div class="tab-pane active" id="chat-tab" role="tabpanel">
+    <script>
+        // 模拟数据集
+        const data = [
+            {小区名称: '都会风尚', 行政区域: '锦江', 片区: '合江亭', 户型: '3室1厅', 建筑面积: 143.58, 成交价: 240, 挂牌价: 265, 单价: 16716, 成交周期: 9, 成交日期: '2017-08-07', 成交渠道: '链家', 朝向: '东北', 装修: '其他', 电梯: '有', 楼层: '高楼层', 总楼层: 32, 建筑年份: 2009, 建筑类型: '板楼'},
+            {小区名称: '都会风尚', 行政区域: '锦江', 片区: '合江亭', 户型: '3室2厅', 建筑面积: 117.79, 成交价: 128, 挂牌价: 136, 单价: 10867, 成交周期: 80, 成交日期: '2016-03-12', 成交渠道: '链家', 朝向: '东北', 装修: '精装', 电梯: '有', 楼层: '低楼层', 总楼层: 32, 建筑年份: 2009, 建筑类型: '板楼'},
+            {小区名称: '都会风尚', 行政区域: '锦江', 片区: '合江亭', 户型: '3室1厅', 建筑面积: 117.09, 成交价: 135, 挂牌价: 138, 单价: 11530, 成交周期: 236, 成交日期: '2016-01-28', 成交渠道: '链家', 朝向: '北', 装修: '精装', 电梯: '有', 楼层: '中楼层', 总楼层: 32, 建筑年份: 2009, 建筑类型: '板楼'},
+            {小区名称: '城市之光', 行政区域: '武侯', 片区: '桐梓林', 户型: '2室1厅', 建筑面积: 85.42, 成交价: 185, 挂牌价: 195, 单价: 21659, 成交周期: 30, 成交日期: '2017-09-15', 成交渠道: '贝壳', 朝向: '南', 装修: '简装', 电梯: '有', 楼层: '中楼层', 总楼层: 28, 建筑年份: 2010, 建筑类型: '塔楼'},
+            {小区名称: '翡翠城', 行政区域: '高新', 片区: '金融城', 户型: '4室2厅', 建筑面积: 168.25, 成交价: 420, 挂牌价: 450, 单价: 25000, 成交周期: 45, 成交日期: '2017-07-20', 成交渠道: '我爱我家', 朝向: '南北', 装修: '精装', 电梯: '有', 楼层: '高楼层', 总楼层: 33, 建筑年份: 2012, 建筑类型: '板楼'},
+            {小区名称: '蓝光COCO时代', 行政区域: '成华', 片区: '建设路', 户型: '2室1厅', 建筑面积: 78.36, 成交价: 158, 挂牌价: 165, 单价: 20165, 成交周期: 60, 成交日期: '2016-12-05', 成交渠道: '链家', 朝向: '东', 装修: '毛坯', 电梯: '有', 楼层: '低楼层', 总楼层: 30, 建筑年份: 2011, 建筑类型: '塔楼'},
+            {小区名称: '龙湖时代天街', 行政区域: '武侯', 片区: '红牌楼', 户型: '3室2厅', 建筑面积: 105.68, 成交价: 235, 挂牌价: 250, 单价: 22243, 成交周期: 25, 成交日期: '2017-06-30', 成交渠道: '贝壳', 朝向: '西南', 装修: '精装', 电梯: '有', 楼层: '中楼层', 总楼层: 26, 建筑年份: 2013, 建筑类型: '板楼'},
+            {小区名称: '中铁奥维尔', 行政区域: '温江', 片区: '大学城', 户型: '3室2厅', 建筑面积: 124.75, 成交价: 185, 挂牌价: 198, 单价: 14826, 成交周期: 70, 成交日期: '2016-11-18', 成交渠道: '我爱我家', 朝向: '东南', 装修: '简装', 电梯: '有', 楼层: '高楼层', 总楼层: 31, 建筑年份: 2014, 建筑类型: '板楼'},
+            {小区名称: '保利198', 行政区域: '青羊', 片区: '光华', 户型: '2室2厅', 建筑面积: 92.58, 成交价: 198, 挂牌价: 210, 单价: 21396, 成交周期: 40, 成交日期: '2017-05-22', 成交渠道: '麦田', 朝向: '西南', 装修: '精装', 电梯: '有', 楼层: '中楼层', 总楼层: 29, 建筑年份: 2010, 建筑类型: '塔楼'},
+            {小区名称: '华润凤凰城', 行政区域: '天府新区', 片区: '华阳', 户型: '4室2厅', 建筑面积: 142.85, 成交价: 350, 挂牌价: 370, 单价: 24500, 成交周期: 35, 成交日期: '2017-04-10', 成交渠道: '贝壳', 朝向: '南北', 装修: '精装', 电梯: '有', 楼层: '高楼层', 总楼层: 32, 建筑年份: 2015, 建筑类型: '板楼'},
+            {小区名称: '中海国际社区', 行政区域: '锦江', 片区: '三圣乡', 户型: '3室2厅', 建筑面积: 115.26, 成交价: 265, 挂牌价: 280, 单价: 23000, 成交周期: 28, 成交日期: '2017-03-15', 成交渠道: '链家', 朝向: '南北', 装修: '精装', 电梯: '有', 楼层: '中楼层', 总楼层: 27, 建筑年份: 2013, 建筑类型: '板楼'},
+            {小区名称: '绿地锦天府', 行政区域: '高新区南区', 片区: '大源', 户型: '3室1厅', 建筑面积: 108.32, 成交价: 285, 挂牌价: 300, 单价: 26300, 成交周期: 32, 成交日期: '2017-02-28', 成交渠道: '贝壳', 朝向: '南', 装修: '精装', 电梯: '有', 楼层: '高楼层', 总楼层: 25, 建筑年份: 2016, 建筑类型: '板楼'},
+            {小区名称: '蓝光林肯公园', 行政区域: '龙泉驿', 片区: '龙泉', 户型: '3室2厅', 建筑面积: 112.54, 成交价: 178, 挂牌价: 185, 单价: 15818, 成交周期: 55, 成交日期: '2016-12-10', 成交渠道: '我爱我家', 朝向: '东', 装修: '简装', 电梯: '有', 楼层: '中楼层', 总楼层: 30, 建筑年份: 2014, 建筑类型: '塔楼'},
+            {小区名称: '金科一城', 行政区域: '天府新区', 片区: '万安', 户型: '2室1厅', 建筑面积: 88.75, 成交价: 165, 挂牌价: 172, 单价: 18590, 成交周期: 48, 成交日期: '2016-11-25', 成交渠道: '麦田', 朝向: '西', 装修: '毛坯', 电梯: '有', 楼层: '低楼层', 总楼层: 28, 建筑年份: 2012, 建筑类型: '板楼'},
+            {小区名称: '金地格林世界', 行政区域: '温江', 片区: '金马', 户型: '3室2厅', 建筑面积: 125.68, 成交价: 198, 挂牌价: 208, 单价: 15755, 成交周期: 65, 成交日期: '2016-10-18', 成交渠道: '链家', 朝向: '南', 装修: '简装', 电梯: '有', 楼层: '高楼层', 总楼层: 31, 建筑年份: 2011, 建筑类型: '板楼'},
+        ];
 
-                        <form class="search-bar py-4 px-3">
-                            <div class="position-relative">
-                                <input type="text" class="form-control" placeholder="Search...">
-                                <span class="mdi mdi-magnify"></span>
+        // 处理数据
+        const processData = () => {
+            // 按区域统计
+            const areaData = {};
+            data.forEach(item => {
+                if (!areaData[item.行政区域]) {
+                    areaData[item.行政区域] = {
+                        count: 0,
+                        totalPrice: 0,
+                        area: 0
+                    };
+                }
+                areaData[item.行政区域].count += 1;
+                areaData[item.行政区域].totalPrice += item.成交价;
+                areaData[item.行政区域].area += item.建筑面积;
+            });
+
+            // 按建筑类型统计
+            const buildingTypeData = {};
+            data.forEach(item => {
+                if (!buildingTypeData[item.建筑类型]) {
+                    buildingTypeData[item.建筑类型] = 0;
+                }
+                buildingTypeData[item.建筑类型] += 1;
+            });
+
+            // 按装修情况统计
+            const decorationData = {};
+            data.forEach(item => {
+                if (!decorationData[item.装修]) {
+                    decorationData[item.装修] = 0;
+                }
+                decorationData[item.装修] += 1;
+            });
+
+            return {
+                areaData,
+                buildingTypeData,
+                decorationData
+            };
+        };
+         // 9. 成交渠道转化漏斗图
+        const funnelOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c} ({d}%)'
+            },
+            legend: {
+                data: ['咨询', '看房', '报价', '谈判', '签约', '成交']
+            },
+            series: [
+                {
+                    name: '转化率',
+                    type: 'funnel',
+                    left: '10%',
+                    top: 60,
+                    bottom: 60,
+                    width: '80%',
+                    min: 0,
+                    max: 1000,
+                    minSize: '0%',
+                    maxSize: '100%',
+                    sort: 'descending',
+                    gap: 2,
+                    label: {
+                        show: true,
+                        position: 'inside'
+                    },
+                    labelLine: {
+                        length: 10,
+                        lineStyle: {
+                            width: 1,
+                            type: 'solid'
+                        }
+                    },
+                    itemStyle: {
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    },
+                    emphasis: {
+                        label: {
+                            fontSize: 14
+                        }
+                    },
+                    data: [
+                        { value: 1000, name: '咨询' },
+                        { value: 750, name: '看房' },
+                        { value: 500, name: '报价' },
+                        { value: 300, name: '谈判' },
+                        { value: 150, name: '签约' },
+                        { value: 100, name: '成交' }
+                    ]
+                }
+            ]
+        };
+
+        const processedData = processData();
+
+        // 初始化所有图表
+        const areaHeatChart = echarts.init(document.getElementById('areaHeatChart'));
+        const buildingTypeChart = echarts.init(document.getElementById('buildingTypeChart'));
+        const priceAreaChart = echarts.init(document.getElementById('priceAreaChart'));
+        const funnelChart = echarts.init(document.getElementById('funnelChart'));
+
+       // 2. 区域热度对比 - 柱状图
+const areaHeatOption = {
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'shadow'
+        }
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis: {
+        type: 'category',
+        data: {{ districts | tojson }},
+        name: '区域'
+    },
+    yAxis: {
+        type: 'value',
+        name: '成交量'
+    },
+    series: [
+        {
+            name: '成交量',
+            type: 'bar',
+            data: {{ counts | tojson }},
+            itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [ // 修改渐变方向为垂直
+                    { offset: 0, color: '#83bff6' },
+                    { offset: 0.5, color: '#188df0' },
+                    { offset: 1, color: '#188df0' }
+                ])
+            }
+        }
+    ]
+};
+
+const buildingTypeOption = {
+    tooltip: {
+        trigger: 'item',
+        formatter: '{a} <br/>{b}: {c} ({d}%)'
+    },
+    legend: {
+        orient: 'vertical',
+        right: 10,
+        top: 'center',
+        data: Object.keys(processedData.buildingTypeData)
+    },
+    series: [
+        {
+            name: '建筑类型',
+            type: 'pie',
+            radius: ['45%', '70%'],
+            avoidLabelOverlap: false,
+            itemStyle: {
+                borderRadius: 10,
+                borderColor: '#fff',
+                borderWidth: 2
+            },
+            label: {
+                show: false,
+                position: 'center'
+            },
+            emphasis: {
+                label: {
+                    show: true,
+                    fontSize: '16',
+                    fontWeight: 'bold'
+                }
+            },
+            labelLine: {
+                show: false
+            },
+            data: Object.keys(JSON.parse('{{ building_type_counts | tojson }}')).map(key => ({
+                name: key,
+                value: JSON.parse('{{ building_type_counts | tojson }}')[key]
+            }))
+        }
+    ]
+};
+  // 8. 成交价格与面积的关系散点图
+        const priceAreaOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '面积: {c[0]} 平方米<br/>价格: {c[1]} 万元'
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                name: '面积 (平方米)'
+            },
+            yAxis: {
+                type: 'value',
+                name: '价格 (万元)'
+            },
+            series: [
+                {
+                    symbolSize: function (data) {
+                        return data[2] * 0.5; // 根据成交量调整气泡大小
+                    },
+                    data: {{ priceAreaData | tojson }},
+                    type: 'scatter',
+                    itemStyle: {
+                        color: function(params) {
+                            // 根据成交量设置颜色
+                            const colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc'];
+                            return colors[params.dataIndex % colors.length];
+                        }
+                    }
+                }
+            ]
+        };
+
+
+        // 渲染所有图表
+
+        areaHeatChart.setOption(areaHeatOption);
+        buildingTypeChart.setOption(buildingTypeOption);
+        priceAreaChart.setOption(priceAreaOption);
+        funnelChart.setOption(funnelOption);
+
+        // 响应式调整
+        window.addEventListener('resize', function() {
+            areaHeatChart.resize();
+            buildingTypeChart.resize();
+            priceAreaChart.resize();
+            funnelChart.resize();
+        });
+    </script>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </form>
-
-                        <h6 class="px-4 py-3 mt-2 bg-light">Group Chats</h6>
-
-                        <div class="p-2">
-                            <a href="javascript: void(0);" class="text-reset notification-item pl-3 mb-2 d-block">
-                                <i class="mdi mdi-checkbox-blank-circle-outline mr-1 text-success"></i>
-                                <span class="mb-0 mt-1">App Development</span>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset notification-item pl-3 mb-2 d-block">
-                                <i class="mdi mdi-checkbox-blank-circle-outline mr-1 text-warning"></i>
-                                <span class="mb-0 mt-1">Office Work</span>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset notification-item pl-3 mb-2 d-block">
-                                <i class="mdi mdi-checkbox-blank-circle-outline mr-1 text-danger"></i>
-                                <span class="mb-0 mt-1">Personal Group</span>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset notification-item pl-3 d-block">
-                                <i class="mdi mdi-checkbox-blank-circle-outline mr-1"></i>
-                                <span class="mb-0 mt-1">Freelance</span>
-                            </a>
-                        </div>
-
-                        <h6 class="px-4 py-3 mt-4 bg-light">Favourites</h6>
-
-                        <div class="p-2">
-                            <a href="javascript: void(0);" class="text-reset notification-item">
-                                <div class="media">
-                                    <div class="position-relative align-self-center mr-3">
-                                        <img src="static/picture/avatar-10.jpg" class="rounded-circle avatar-xs" alt="user-pic">
-                                        <i class="mdi mdi-circle user-status online"></i>
-                                    </div>
-                                    <div class="media-body overflow-hidden">
-                                        <h6 class="mt-0 mb-1">Andrew Mackie</h6>
-                                        <div class="font-size-12 text-muted">
-                                            <p class="mb-0 text-truncate">It will seem like simplified English.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset notification-item">
-                                <div class="media">
-                                    <div class="position-relative align-self-center mr-3">
-                                        <img src="static/picture/avatar-1.jpg" class="rounded-circle avatar-xs" alt="user-pic">
-                                        <i class="mdi mdi-circle user-status away"></i>
-                                    </div>
-                                    <div class="media-body overflow-hidden">
-                                        <h6 class="mt-0 mb-1">Rory Dalyell</h6>
-                                        <div class="font-size-12 text-muted">
-                                            <p class="mb-0 text-truncate">To an English person, it will seem like simplified</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset notification-item">
-                                <div class="media">
-                                    <div class="position-relative align-self-center mr-3">
-                                        <img src="static/picture/avatar-9.jpg" class="rounded-circle avatar-xs" alt="user-pic">
-                                        <i class="mdi mdi-circle user-status busy"></i>
-                                    </div>
-                                    <div class="media-body overflow-hidden">
-                                        <h6 class="mt-0 mb-1">Jaxon Dunhill</h6>
-                                        <div class="font-size-12 text-muted">
-                                            <p class="mb-0 text-truncate">To achieve this, it would be necessary.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <h6 class="px-4 py-3 mt-4 bg-light">Other Chats</h6>
-
-                        <div class="p-2 pb-4">
-                            <a href="javascript: void(0);" class="text-reset notification-item">
-                                <div class="media">
-                                    <div class="position-relative align-self-center mr-3">
-                                        <img src="static/picture/avatar-2.jpg" class="rounded-circle avatar-xs" alt="user-pic">
-                                        <i class="mdi mdi-circle user-status online"></i>
-                                    </div>
-                                    <div class="media-body overflow-hidden">
-                                        <h6 class="mt-0 mb-1">Jackson Therry</h6>
-                                        <div class="font-size-12 text-muted">
-                                            <p class="mb-0 text-truncate">Everyone realizes why a new common language.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset notification-item">
-                                <div class="media">
-                                    <div class="position-relative align-self-center mr-3">
-                                        <img src="static/picture/avatar-4.jpg" class="rounded-circle avatar-xs" alt="user-pic">
-                                        <i class="mdi mdi-circle user-status away"></i>
-                                    </div>
-                                    <div class="media-body overflow-hidden">
-                                        <h6 class="mt-0 mb-1">Charles Deakin</h6>
-                                        <div class="font-size-12 text-muted">
-                                            <p class="mb-0 text-truncate">The languages only differ in their grammar.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset notification-item">
-                                <div class="media">
-                                    <div class="position-relative align-self-center mr-3">
-                                        <img src="static/picture/avatar-5.jpg" class="rounded-circle avatar-xs" alt="user-pic">
-                                        <i class="mdi mdi-circle user-status online"></i>
-                                    </div>
-                                    <div class="media-body overflow-hidden">
-                                        <h6 class="mt-0 mb-1">Ryan Salting</h6>
-                                        <div class="font-size-12 text-muted">
-                                            <p class="mb-0 text-truncate">If several languages coalesce the grammar of the resulting.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset notification-item">
-                                <div class="media">
-                                    <div class="position-relative align-self-center mr-3">
-                                        <img src="static/picture/avatar-6.jpg" class="rounded-circle avatar-xs" alt="user-pic">
-                                        <i class="mdi mdi-circle user-status online"></i>
-                                    </div>
-                                    <div class="media-body overflow-hidden">
-                                        <h6 class="mt-0 mb-1">Sean Howse</h6>
-                                        <div class="font-size-12 text-muted">
-                                            <p class="mb-0 text-truncate">It will seem like simplified English.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset notification-item">
-                                <div class="media">
-                                    <div class="position-relative align-self-center mr-3">
-                                        <img src="static/picture/avatar-7.jpg" class="rounded-circle avatar-xs" alt="user-pic">
-                                        <i class="mdi mdi-circle user-status busy"></i>
-                                    </div>
-                                    <div class="media-body overflow-hidden">
-                                        <h6 class="mt-0 mb-1">Dean Coward</h6>
-                                        <div class="font-size-12 text-muted">
-                                            <p class="mb-0 text-truncate">The new common language will be more simple.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset notification-item">
-                                <div class="media">
-                                    <div class="position-relative align-self-center mr-3">
-                                        <img src="static/picture/avatar-8.jpg" class="rounded-circle avatar-xs" alt="user-pic">
-                                        <i class="mdi mdi-circle user-status away"></i>
-                                    </div>
-                                    <div class="media-body overflow-hidden">
-                                        <h6 class="mt-0 mb-1">Hayley East</h6>
-                                        <div class="font-size-12 text-muted">
-                                            <p class="mb-0 text-truncate">One could refuse to pay expensive translators.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-                    </div>
-
-                    <div class="tab-pane" id="tasks-tab" role="tabpanel">
-                        <h6 class="p-3 mb-0 mt-4 bg-light">Working Tasks</h6>
-
-                        <div class="p-2">
-                            <a href="javascript: void(0);" class="text-reset item-hovered d-block p-3">
-                                <p class="text-muted mb-0">App Development<span class="float-right">75%</span></p>
-                                <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset item-hovered d-block p-3">
-                                <p class="text-muted mb-0">Database Repair<span class="float-right">37%</span></p>
-                                <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar bg-info" role="progressbar" style="width: 37%" aria-valuenow="37" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset item-hovered d-block p-3">
-                                <p class="text-muted mb-0">Backup Create<span class="float-right">52%</span></p>
-                                <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 52%" aria-valuenow="52" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <h6 class="p-3 mb-0 mt-4 bg-light">Upcoming Tasks</h6>
-
-                        <div class="p-2">
-                            <a href="javascript: void(0);" class="text-reset item-hovered d-block p-3">
-                                <p class="text-muted mb-0">Sales Reporting<span class="float-right">12%</span></p>
-                                <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar bg-danger" role="progressbar" style="width: 12%" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset item-hovered d-block p-3">
-                                <p class="text-muted mb-0">Redesign Website<span class="float-right">67%</span></p>
-                                <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 67%" aria-valuenow="67" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </a>
-
-                            <a href="javascript: void(0);" class="text-reset item-hovered d-block p-3">
-                                <p class="text-muted mb-0">New Admin Design<span class="float-right">84%</span></p>
-                                <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 84%" aria-valuenow="84" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <div class="p-3 mt-2">
-                            <a href="javascript: void(0);" class="btn btn-success btn-block waves-effect waves-light">Create Task</a>
-                        </div>
-
-                    </div>
-                    <div class="tab-pane" id="settings-tab" role="tabpanel">
-                            <h6 class="px-4 py-3 bg-light">General Settings</h6>
-
-                        <div class="p-4">
-                            <h6 class="font-weight-medium">Online Status</h6>
-                            <div class="custom-control custom-switch mb-1">
-                                <input type="checkbox" class="custom-control-input" id="settings-check1" name="settings-check1" checked="">
-                                <label class="custom-control-label font-weight-normal" for="settings-check1">Show your status to all</label>
-                            </div>
-
-                            <h6 class="mt-4">Auto Updates</h6>
-                            <div class="custom-control custom-switch mb-1">
-                                <input type="checkbox" class="custom-control-input" id="settings-check2" name="settings-check2" checked="">
-                                <label class="custom-control-label font-weight-normal" for="settings-check2">Keep up to date</label>
-                            </div>
-
-                            <h6 class="mt-4">Backup Setup</h6>
-                            <div class="custom-control custom-switch mb-1">
-                                <input type="checkbox" class="custom-control-input" id="settings-check3" name="settings-check3">
-                                <label class="custom-control-label font-weight-normal" for="settings-check3">Auto backup</label>
-                            </div>
-
-                        </div>
-
-                        <h6 class="px-4 py-3 mt-2 bg-light">Advanced Settings</h6>
-
-                        <div class="p-4">
-                            <h6 class="font-weight-medium">Application Alerts</h6>
-                            <div class="custom-control custom-switch mb-1">
-                                <input type="checkbox" class="custom-control-input" id="settings-check4" name="settings-check4" checked="">
-                                <label class="custom-control-label font-weight-normal" for="settings-check4">Email Notifications</label>
-                            </div>
-
-                            <div class="custom-control custom-switch mb-1">
-                                <input type="checkbox" class="custom-control-input" id="settings-check5" name="settings-check5">
-                                <label class="custom-control-label font-weight-normal" for="settings-check5">SMS Notifications</label>
-                            </div>
-
-                            <h6 class="mt-4">API</h6>
-                            <div class="custom-control custom-switch mb-1">
-                                <input type="checkbox" class="custom-control-input" id="settings-check6" name="settings-check6">
-                                <label class="custom-control-label font-weight-normal" for="settings-check6">Enable access</label>
-                            </div>
-
                         </div>
                     </div>
                 </div>
-
-            </div> <!-- end slimscroll-menu-->
+            </div>
         </div>
-        <!-- /Right-bar -->
-
-        <!-- Right bar overlay-->
-        <div class="rightbar-overlay"></div>
-
-        <!-- JAVASCRIPT -->
-        <script src="/static/echarts.min.js"></script>
-
-        <script src="/static/js/jquery.min.js"></script>
-        <script src="/static/js/bootstrap.bundle.min.js"></script>
-        <script src="/static/js/metisMenu.min.js"></script>
-        <script src="/static/js/simplebar.min.js"></script>
-        <script src="/static/js/waves.min.js"></script>
-        <script src="/static/js/bundle.js"></script>
-        <script src="/static/js/jquery.dataTables.min.js"></script>
-        <script src="/static/js/dataTables.bootstrap4.min.js"></script>
-        <script src="/static/js/dataTables.buttons.min.js"></script>
-        <script src="/static/js/buttons.bootstrap4.min.js"></script>
-        <script src="/static/js/jszip.min.js"></script>
-        <script src="/static/js/buttons.html5.min.js"></script>
-        <script src="/static/js/buttons.print.min.js"></script>
-        <script src="/static/js/buttons.colVis.min.js"></script>
-        <script src="/static/js/dataTables.responsive.min.js"></script>
-        <script src="/static/js/responsive.bootstrap4.min.js"></script>
-        <script src="/static/js/datatables.init.js"></script>
-        <script src="/static/js/app.js"></script>
-
     </body>
 </html>
