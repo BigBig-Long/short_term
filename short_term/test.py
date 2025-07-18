@@ -15,3 +15,5 @@
 # https://bh.fang.lianjia.com /loupan/pg1/?_t=1
 str = '天地新城'
 print(str.find('天地新城'))
+
+# 其实我才是组里最帅的
