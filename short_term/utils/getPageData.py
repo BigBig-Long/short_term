@@ -279,6 +279,153 @@ def getTypeCharDataOne(hourseList):
 def getTypeCharDataTwo(hourseList):
     return getDicData(hourseList,'hourseType')
 
+
+# utils/getPageData.py
+def getRegionData(hourseList):
+    # 初始化数据结构：{区域: {房屋类型: 数量}}
+    region_type_dict = {}
+
+    for h in hourseList:
+        region = h.region
+        house_type = h.hourseType  # 房屋类型字段
+
+        if not region or not house_type:
+            continue
+
+        # 初始化区域
+        if region not in region_type_dict:
+            region_type_dict[region] = {}
+
+        # 统计房屋类型数量
+        region_type_dict[region][house_type] = region_type_dict[region].get(house_type, 0) + 1
+
+    # 转换为 ECharts 所需格式
+    categories = list(region_type_dict.keys())  # 区域列表
+    series = []
+
+    # 获取所有可能的房屋类型
+    all_house_types = set()
+    for region_data in region_type_dict.values():
+        all_house_types.update(region_data.keys())
+
+    # 为每种房屋类型创建一个系列
+    for house_type in all_house_types:
+        data = []
+        for region in categories:
+            data.append(region_type_dict[region].get(house_type, 0))
+
+        series.append({
+            'name': house_type,
+            'type': 'bar',
+            'stack': '总量',  # 设置堆叠
+            'data': data
+        })
+
+    return {
+        'categories': categories,
+        'series': series
+    }
+
+
+def getRegionPriceStackData(hourseList):
+    """
+    生成区域-房屋类型均价数据，用于堆叠图
+    返回格式: [{'region': '区域名', 'house_types': [{'type': '类型名', 'average_price': 均价}, ...]}, ...]
+    """
+    # 初始化数据结构: {区域: {房屋类型: [价格列表]}}
+    region_type_prices = {}
+
+    for h in hourseList:
+        region = h.region
+        house_type = h.hourseType
+        price = h.price
+
+        if not region or not house_type or not price:
+            continue
+
+        try:
+            price_num = float(price)
+
+            # 初始化区域
+            if region not in region_type_prices:
+                region_type_prices[region] = {}
+
+            # 初始化房屋类型价格列表
+            if house_type not in region_type_prices[region]:
+                region_type_prices[region][house_type] = []
+
+            region_type_prices[region][house_type].append(price_num)
+        except ValueError:
+            continue  # 跳过无效价格
+
+    # 计算均价并格式化结果
+    result = []
+    for region, type_prices in region_type_prices.items():
+        house_types = []
+        for house_type, prices in type_prices.items():
+            # 计算均价并保留两位小数
+            avg_price = round(sum(prices) / len(prices), 2)
+            house_types.append({
+                'type': house_type,
+                'average_price': avg_price
+            })
+        result.append({
+            'region': region,
+            'house_types': house_types
+        })
+
+    return result
+
+def getRoomsData(hourseList):
+    roomsDic = {}
+    for h in hourseList:
+        try:
+            # 检查 rooms_desc 的类型
+            if isinstance(h.rooms_desc, str):
+                # 如果是字符串，尝试解析为 JSON
+                rooms = json.loads(h.rooms_desc)
+            elif isinstance(h.rooms_desc, list):
+                # 如果已经是列表，直接使用
+                rooms = h.rooms_desc
+            else:
+                # 其他类型（如 None）则跳过
+                continue
+
+            # 统计房间数
+            for room in rooms:
+                roomsDic[room + '室'] = roomsDic.get(room + '室', 0) + 1
+        except Exception as e:
+            print(f"解析 rooms_desc 失败: {e}")
+            continue  # 跳过错误数据
+
+    return [{'name': k, 'value': v} for k, v in roomsDic.items()]
+
+
+# utils/getPageData.py
+
+def getTagsData(hourseList):
+    tagsDic = {}
+    for h in hourseList:
+        try:
+            # 处理 tags 可能是字符串或列表的情况
+            if isinstance(h.tags, str):
+                tags = json.loads(h.tags)
+            elif isinstance(h.tags, list):
+                tags = h.tags
+            else:
+                continue  # 跳过无效数据
+
+            # 统计标签出现次数
+            for tag in tags:
+                tagsDic[tag] = tagsDic.get(tag, 0) + 1
+        except Exception as e:
+            print(f"解析标签失败: {e}")
+            continue
+
+    # 转换为词云所需格式
+    return [{'name': k, 'value': v} for k, v in tagsDic.items()]
+
+# 1. 全局数据：各城市未交房数（所有城市，不随选择变化）
 def getAnthorCharOne(hourseList):
     cityDic = {}
     for i in hourseList:
@@ -329,6 +476,26 @@ def getAnthorCharTwo(hourseList):
             'value': value
         })
     return resData
+# 假设的年限分析数据获取函数
+def getYearAnalysisData(hourseList):
+    yearDic = {}
+    for h in hourseList:
+        year = h.open_date.split('-')[0]  # 假设 open_date 格式为 YYYY-MM-DD
+        if yearDic.get(year, -1) == -1:
+            yearDic[year] = 1
+        else:
+            yearDic[year] += 1
+    resData = []
+    for key, value in yearDic.items():
+        resData.append({
+            'name': key,
+            'value': value
+        })
+    return resData
+
+# 房屋装修情况分析数据获取函数
+def getDecorationAnalysisData(hourseList):
+    return getDicData(hourseList, 'hourseDecoration')
 
 def getAnthorCharThree(hourseList):
     return [x['name'] for x in getDicData(hourseList,'tags')],[x['value'] for x in getDicData(hourseList,'tags')]

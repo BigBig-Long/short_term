@@ -218,6 +218,16 @@
                                         </div>
                                     </div>
                                 </div>
+                                 <div class="col-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h4 class="header-title">房屋装修情况分析</h4>
+                                            <div id="mainFour" style="width: 100%;height:450px">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="col-6">
                                     <div class="card">
                                         <div class="card-body">
@@ -228,6 +238,17 @@
                                         </div>
                                     </div>
                                 </div>
+                                 <div class="col-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h4 class="header-title">年限分析</h4>
+                                            <div id="mainFive" style="width: 100%;height:450px">
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div> <!-- end row -->
 
                         </div>
@@ -384,6 +405,8 @@
             option && myChart1.setOption(option);
 
         </script>
+
+
         <script>
         var chartDom2 = document.getElementById('mainThree');
         var myChart2 = echarts.init(chartDom2);
@@ -469,10 +492,54 @@
             }
           ]
         };
-
         option && myChart2.setOption(option);
 
         </script>
+        <script>
+        // 年限分析图表
+        var chartDomFive = document.getElementById('mainFive');
+        var myChartFive = echarts.init(chartDomFive);
+        var optionFive = {
+            title: {
+                text: '年限分析'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            xAxis: {
+                type: 'category',
+                data: {{ yearAnalysisData | map(attribute='name') |  list |tojson }}
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                data: {{ yearAnalysisData | map(attribute='value') | list | tojson }},
+                type: 'bar'
+            }]
+        };
+        optionFive && myChartFive.setOption(optionFive);
+
+        // 房屋装修情况分析图表
+        var chartDomFour = document.getElementById('mainFour');
+        var myChartFour = echarts.init(chartDomFour);
+        var optionFour = {
+            title: {
+                text: '房屋装修情况分析'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            series: [{
+                name: '房屋装修情况',
+                type: 'pie',
+                radius: '50%',
+                data: {{ decorationAnalysisData | list | tojson }}
+            }]
+        };
+        optionFour && myChartFour.setOption(optionFour);
+    </script>
+
         <script src="/static/js/jquery.min.js"></script>
         <script src="/static/js/bootstrap.bundle.min.js"></script>
         <script src="/static/js/metisMenu.min.js"></script>

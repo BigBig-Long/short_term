@@ -164,25 +164,55 @@ def detailChar():
     X,Y= getDetailCharTwo(hourseList,type)
     return render_template('detailChar.html',username=username,detailCharOneData=detailCharOneData,X=X,Y=Y)
 
-@pb.route('/typeChar',methods=['GET'])
+@pb.route('/typeChar', methods=['GET'])
 def typeChar():
     username = session.get('username')
     citiesList = getCitiesList()
     defaultCity = request.args.get('city') if request.args.get('city') else citiesList[0]
     hourseList = getAllHourse_infoMap(defaultCity)
+
+    # 使用延迟导入的函数
+    getTypeCharDataOne, getTypeCharDataTwo = get_type_char_data()
     typeCheOneData = getTypeCharDataOne(hourseList)
     typeCheTwoData = getTypeCharDataTwo(hourseList)
-    return render_template('typeChar.html',username=username,citiesList=citiesList,defaultCity=defaultCity,typeCheOneData=typeCheOneData,typeCheTwoData=typeCheTwoData)
 
-@pb.route('/anthorChar',methods=['GET'])
+    # 新增数据处理
+    from utils.getPageData import getRegionData, getRoomsData, getTagsData, getRegionPriceStackData
+    roomsData = getRoomsData(hourseList)
+    tagsData = getTagsData(hourseList)
+    regionData = getRegionData(hourseList)
+    region_price_stack_data = getRegionPriceStackData(hourseList)
+
+    return render_template('typeChar.html',
+                           username=username,
+                           citiesList=citiesList,
+                           defaultCity=defaultCity,
+                           typeCheOneData=typeCheOneData,
+                           typeCheTwoData=typeCheTwoData,
+                           regionData=regionData,
+                           roomsData=roomsData,
+                           tagsData=tagsData,
+                           region_price_stack_data=region_price_stack_data)
+
+@pb.route('/anthorChar', methods=['GET'])
 def anthorChar():
     username = session.get('username')
     hourseList = getAllHourse_infoMap()
-    X,Y = getAnthorCharOne(hourseList)
+    X, Y = getAnthorCharOne(hourseList)
     charTwoData = getAnthorCharTwo(hourseList)
-    X1,Y1 = getAnthorCharThree(hourseList)
-    return render_template('anthorChar.html',username=username,X=X,Y=Y,charTwoData=charTwoData,X1=X1,Y1=Y1)
+    X1, Y1 = getAnthorCharThree(hourseList)
 
+    # 获取年限分析和房屋装修情况分析数据
+    yearAnalysisData = getYearAnalysisData(hourseList)
+    decorationAnalysisData = getDecorationAnalysisData(hourseList)
+
+    return render_template('anthorChar.html',
+                           username=username,
+                           X=X, Y=Y,
+                           charTwoData=charTwoData,
+                           X1=X1, Y1=Y1,
+                           yearAnalysisData=yearAnalysisData,
+                           decorationAnalysisData=decorationAnalysisData)
 @pb.route('/companyCloud',methods=['GET'])
 def companyCloud():
     username = session.get('username')

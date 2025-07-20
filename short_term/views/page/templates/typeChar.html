@@ -218,17 +218,7 @@
                                                     {% endif %}
                                                 {% endfor %}
                                             </select>
-                                            <script>
-                                                function changeCity() { // 用function声明，避免箭头函数可能的作用域问题
-                                                    // 直接通过name属性定位select（简单粗暴，必能找到）
-                                                    const selectElement = document.querySelector('select[name="defaultCity"]');
-                                                    // 强制获取value（此时select一定有选中项，value不可能为undefined）
-                                                    const selectedCity = selectElement.value;
-                                                    // 跳转逻辑
-                                                    const timestamp = new Date().getTime();
-                                                    window.location.href = '/page/typeChar?city=' + selectedCity + '&_t=' + timestamp;
-                                                }
-                                            </script>
+
                                         </div>
                                     </div>
                                 </div>
@@ -256,6 +246,48 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="header-title">{{ defaultCity }} - 区域房源密度</h4>
+                                    <div id="regionChart" style="width: 100%;height:450px">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="header-title">{{ defaultCity }} - 房间数分布</h4>
+                                    <div id="mainfour" style="width: 100%;height:450px">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="header-title">{{ defaultCity }} - 房屋地区价格分布</h4>
+                                    <div id="priceStackChart" style="width: 100%;height:450px">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="header-title">{{ defaultCity }} - 热门标签词云图</h4>
+                                    <div id="tagsCloud" style="width: 100%;height:450px">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div> <!-- end row -->
 
                 </div>
@@ -273,7 +305,7 @@
                     </div>
                     <div class="col-sm-6">
                         <div class="text-sm-right d-none d-sm-block">
-                            Copyright &copy; 2024<a target="_blank" href="#">链家网房屋数据分析预测系统</a>
+                            Copyright &copy; 2025<a target="_blank" href="#">链家网房屋数据分析预测系统</a>
                         </div>
                     </div>
                 </div>
@@ -290,6 +322,17 @@
 <div class="rightbar-overlay"></div>
 
 <!-- JAVASCRIPT -->
+<script>
+    function changeCity() { // 用function声明，避免箭头函数可能的作用域问题
+        // 直接通过name属性定位select（简单粗暴，必能找到）
+        const selectElement = document.querySelector('select[name="defaultCity"]');
+        // 强制获取value（此时select一定有选中项，value不可能为undefined）
+        const selectedCity = selectElement.value;
+        // 跳转逻辑
+        const timestamp = new Date().getTime();
+        window.location.href = '/page/typeChar?city=' + selectedCity + '&_t=' + timestamp;
+    }
+</script>
 <script src="/static/echarts.min.js"></script>
 <script>
     const chartDom = document.getElementById('main');
@@ -366,6 +409,345 @@
     optionTwo && myChartTwo.setOption(optionTwo);
 
 </script>
+<script>
+    // 区域房源数量堆叠柱状图
+    try {
+        const regionData = {{ regionData | tojson }};
+        console.log('区域堆叠图数据:', regionData);
+
+        if (!regionData || !regionData.categories || regionData.categories.length === 0) {
+            throw new Error('没有区域数据');
+        }
+
+        const regionDom = document.getElementById('regionChart');
+        const regionChart = echarts.init(regionDom);
+
+        const option = {
+            title: {
+                text: '各区域不同类型房源数量',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'shadow' },
+                formatter: function(params) {
+                    let result = `<b>${params[0].name}</b><br>`;
+                    let total = 0;
+
+                    params.forEach(item => {
+                        result += `${item.seriesName}: ${item.value} 套<br>`;
+                        total += item.value;
+                    });
+
+                    result += `<b>总计: ${total} 套</b>`;
+                    return result;
+                }
+            },
+            legend: {
+                type: 'scroll',  // 当类型过多时支持滚动
+                orient: 'horizontal',
+                bottom: 10,
+                pageButtonItemGap: 5
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: regionData.categories,
+                axisLabel: {
+                    rotate: 45,  // 旋转标签避免重叠
+                    interval: 0
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: '房源数量'
+            },
+            series: regionData.series
+        };
+
+        regionChart.setOption(option);
+
+        // 响应窗口大小变化
+        window.addEventListener('resize', () => {
+            regionChart.resize();
+        });
+    } catch (error) {
+        console.error('区域堆叠图渲染失败:', error);
+        // 显示错误信息
+    }
+</script>
+
+<script>
+    const chartDomFour = document.getElementById('mainfour');
+    const myChartFour= echarts.init(chartDomFour);
+    let optionFour;
+
+    optionFour = {
+        title: { text: '房间数分布占比', left: 'center' },
+        tooltip: { trigger: 'item' },
+        legend: { orient: 'horizontal', bottom: 0 },
+        series: [{
+            name: '房间数',
+            type: 'pie',
+            radius: '60%',
+            data: {{ roomsData | tojson }},
+            label: { formatter: '{b}: {c}套 ({d}%)' }  // 显示数量和百分比
+        }]
+    };
+
+    optionFour && myChartFour.setOption(optionFour);
+</script>
+
+<script>
+    // 区域房屋类型均价堆叠图
+    try {
+        // 获取后端传递的数据
+        const stackData = {{ region_price_stack_data | tojson }};
+        console.log('堆叠图原始数据:', stackData);
+
+        // 数据验证
+        if (!stackData || stackData.length === 0) {
+            throw new Error('没有可用的价格数据');
+        }
+
+        // 提取区域列表
+        const regions = stackData.map(item => item.region);
+
+        // 提取所有房屋类型（去重）
+        const houseTypes = [];
+        stackData.forEach(regionItem => {
+            regionItem.house_types.forEach(typeItem => {
+                if (!houseTypes.includes(typeItem.type)) {
+                    houseTypes.push(typeItem.type);
+                }
+            });
+        });
+
+        // 构建系列数据
+        const series = [];
+        houseTypes.forEach(type => {
+            const data = [];
+            stackData.forEach(regionItem => {
+                // 查找当前区域中该类型房屋的均价
+                const typeData = regionItem.house_types.find(item => item.type === type);
+                data.push(typeData ? typeData.average_price : 0);
+            });
+
+            series.push({
+                name: type,
+                type: 'bar',
+                stack: 'total',  // 堆叠配置
+                data: data,
+                itemStyle: {
+                    // 为不同类型设置区分颜色
+                    color: function(params) {
+                        const colors = [
+                            '#5470c6', '#91cc75', '#fac858', '#ee6666',
+                            '#73c0de', '#3ba272', '#fc8452', '#9a60b4'
+                        ];
+                        return colors[params.seriesIndex % colors.length];
+                    }
+                },
+                label: {
+                    show: false,  // 默认不显示标签（数据太多时会重叠）
+                    position: 'insideTop',
+                    formatter: '{c} 元'
+                }
+            });
+        });
+
+        // 初始化图表
+        const chartDom = document.getElementById('priceStackChart');
+        const myChart = echarts.init(chartDom);
+
+        // 图表配置
+        const option = {
+            title: {
+                text: '各区域不同类型房屋均价堆叠图',
+                left: 'center',
+                textStyle: {
+                    fontSize: 16
+                }
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    let result = `<b>${params[0].name}</b><br>`;
+                    let total = 0;
+
+                    params.forEach(item => {
+                        if (item.value > 0) {
+                            result += `${item.seriesName}: ${item.value.toFixed(2)} 元/㎡<br>`;
+                            total += item.value;
+                        }
+                    });
+
+                    result += `<b>总计: ${total.toFixed(2)} 元/㎡</b>`;
+                    return result;
+                }
+            },
+            legend: {
+                type: 'scroll',  // 支持滚动（类型太多时）
+                orient: 'horizontal',
+                bottom: 10,
+                data: houseTypes
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',  // 预留更多底部空间给图例
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: regions,
+                axisLabel: {
+                    rotate: 45,  // 旋转标签防止重叠
+                    interval: 0,
+                    fontSize: 12
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: '平均单价 (元/㎡)',
+                nameTextStyle: {
+                    fontSize: 12
+                },
+                axisLabel: {
+                    formatter: '{value} 元'
+                }
+            },
+            series: series
+        };
+
+        // 渲染图表
+        myChart.setOption(option);
+
+        // 响应窗口大小变化
+        window.addEventListener('resize', () => {
+            myChart.resize();
+        });
+
+        console.log('堆叠图渲染成功');
+    } catch (error) {
+        console.error('堆叠图渲染失败:', error);
+        // 显示友好错误信息
+        const errorDom = document.getElementById('priceStackChart');
+        if (errorDom) {
+            errorDom.innerHTML = `
+                <div class="text-center text-danger" style="padding: 50px 0;">
+                    <p>图表加载失败: ${error.message}</p>
+                    <p>请尝试刷新页面或联系管理员</p>
+                </div>
+            `;
+        }
+    }
+</script>
+
+<!-- 引入 ECharts 和词云插件 -->
+<script src="/static/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.0.0/dist/echarts-wordcloud.min.js"></script>
+<script>
+    // 等待 DOM 加载完成
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            console.log('开始渲染标签词云图...');
+            // 检查数据是否存在
+            const tagsData = {{ tagsData | tojson }};
+            console.log('原始标签数据:', tagsData);
+
+            if (!tagsData || tagsData.length === 0) {
+                throw new Error('标签数据为空');
+            }
+
+            // 优化：过滤低频标签
+            const filteredTags = tagsData.filter(tag => tag.value >= 3);
+            const finalTags = filteredTags.length > 5 ? filteredTags : tagsData;
+            console.log('优化后标签数据:', finalTags);
+
+            // 检查 DOM 元素是否存在
+            const tagsDom = document.getElementById('tagsCloud');
+            if (!tagsDom) {
+                throw new Error('找不到词云图容器');
+            }
+
+            // 初始化 ECharts
+            const tagsChart = echarts.init(tagsDom);
+            if (!tagsChart) {
+                throw new Error('ECharts 初始化失败');
+            }
+
+            // 配置词云图
+            const tagsOption = {
+                title: {
+                    text: '热门房源标签',
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 18,
+                        fontWeight: 'bold'
+                    }
+                },
+                tooltip: {
+                    show: true,
+                    formatter: function(params) {
+                        return `标签: ${params.data.name}<br>出现次数: ${params.data.value}`;
+                    }
+                },
+                series: [{
+                    type: 'wordCloud',
+                    gridSize: 10,  // 适当增加字间距
+                    sizeRange: [16, 50],  // 调整字体大小范围
+                    rotationRange: [-45, 0, 45, 90],
+                    shape: 'circle',
+                    drawOutOfBound: false,  // 不绘制超出边界的文字
+                    textStyle: {
+                        normal: {
+                            color: function() {
+                                // 使用更鲜明的颜色
+                                const colors = [
+                                    '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78',
+                                    '#2ca02c', '#98df8a', '#d62728', '#ff9896',
+                                    '#9467bd', '#c5b0d5', '#8c564b', '#c49c94'
+                                ];
+                                return colors[Math.floor(Math.random() * colors.length)];
+                            }
+                        },
+                        emphasis: {
+                            shadowBlur: 10,
+                            shadowColor: '#333'
+                        }
+                    },
+                    data: finalTags
+                }]
+            };
+
+            // 设置图表配置
+            tagsChart.setOption(tagsOption);
+
+            // 响应窗口大小变化
+            window.addEventListener('resize', () => {
+                tagsChart.resize();
+            });
+
+            console.log('标签词云图渲染成功');
+        } catch (error) {
+            console.error('标签词云图渲染失败:', error);
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'text-danger text-center mt-5';
+            errorMsg.textContent = `词云图加载失败: ${error.message}`;
+            document.getElementById('tagsCloud')?.appendChild(errorMsg);
+        }
+    });
+</script>
+
 <script src="/static/js/jquery.min.js"></script>
 <script src="/static/js/bootstrap.bundle.min.js"></script>
 <script src="/static/js/metisMenu.min.js"></script>
