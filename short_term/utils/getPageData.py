@@ -1,7 +1,7 @@
-from utils.getPublicData import cityList
-import re
-from model.History import History
-from model.User import User
+import json
+
+from short_term.utils.getPublicData import cityList
+
 def getHomeGeoCharData(hourse_data):
     average_price_dic = average_price(hourse_data)
     cityDic = {}
@@ -97,39 +97,10 @@ def average_price(hourse_data,type='city'):
 
     return average_prices
 
-
 def getPriceCharDataTwo(hourseList):
-    average_pricesData = average_price(hourseList, 'open_date')
-
-    valid_entries = {
-        date: price for date, price in average_pricesData.items()
-        if is_valid_date(date)  # 调用有效性校验函数
-    }
-    # 按时间升序排序
-    sorted_data = sorted(valid_entries.items(), key=lambda x: x[0], reverse=False)
-
-    dates = [x[0] for x in sorted_data]
-    prices = [x[1] for x in sorted_data]
-    return dates, prices
-
-
-# 辅助函数：校验日期有效性（示例）
-def is_valid_date(date_str):
-    try:
-        # 校验格式：YYYY-MM-DD（允许19/20开头的年份）
-        if not re.match(r'^\d{4}-\d{2}-\d{2}$', date_str):
-            return False
-        year, month, day = map(int, date_str.split('-'))
-        if month < 1 or month > 12 or day < 1 or day > 31:
-            return False
-        # 校验闰年2月（可选）
-        if month == 2 and day > 29:
-            return False
-        if month in [4, 6, 9, 11] and day > 30:
-            return False
-        return True
-    except:
-        return False
+    average_pricesData = average_price(hourseList,'open_date')
+    sorted_data = list(sorted(average_pricesData.items(),key=lambda x:x[0],reverse=True))
+    return [x[0] for x in sorted_data],[x[1] for x in sorted_data]
 
 def getPriceCharDataThree(hourseList):
     data = []
@@ -244,6 +215,94 @@ def getDetailCharTwo(hourseList,type):
                 yData[6] +=1
 
     return xData,yData
+
+def getDicData(hourseList,fild):
+    hourseDecorationDic = {}
+    for h in hourseList:
+        if fild == 'hourseDecoration' and h.hourseDecoration != '':
+            if hourseDecorationDic.get(h.hourseDecoration, -1) == -1:
+                hourseDecorationDic[h.hourseDecoration] = 1
+            else:
+                hourseDecorationDic[h.hourseDecoration] += 1
+        elif fild == 'hourseType':
+            if hourseDecorationDic.get(h.hourseType, -1) == -1:
+                hourseDecorationDic[h.hourseType] = 1
+            else:
+                hourseDecorationDic[h.hourseType] += 1
+        elif fild == 'tags':
+            for tag in h.tags:
+                if hourseDecorationDic.get(tag, -1) == -1:
+                    hourseDecorationDic[tag] = 1
+                else:
+                    hourseDecorationDic[tag] += 1
+
+    resData = []
+    for key, value in hourseDecorationDic.items():
+        resData.append({
+            'name':key,
+            'value':value
+        })
+    return resData
+
+def getTypeCharDataOne(hourseList):
+    return getDicData(hourseList,'hourseDecoration')
+
+def getTypeCharDataTwo(hourseList):
+    return getDicData(hourseList,'hourseType')
+
+def getAnthorCharOne(hourseList):
+    cityDic = {}
+    for i in hourseList:
+        if i.on_time == '0000-00-00 00:00:00':
+            if cityDic.get(i.city,-1) == -1:
+                cityDic[i.city] = 1
+            else:
+                cityDic[i.city] += 1
+    return list(cityDic.keys()),list(cityDic.values())
+
+def getAnthorCharTwo(hourseList):
+    sale_statusDic = {}
+    for h in hourseList:
+        if h.sale_status == '1':
+            if sale_statusDic.get('在售',-1) == -1:
+                sale_statusDic['在售'] = 1
+            else:
+                sale_statusDic['在售'] += 1
+        elif h.sale_status == '2':
+            if sale_statusDic.get('已售',-1) == -1:
+                sale_statusDic['已售'] = 1
+            else:
+                sale_statusDic['已售'] += 1
+        elif h.sale_status == '3':
+            if sale_statusDic.get('出租中',-1) == -1:
+                sale_statusDic['出租中'] = 1
+            else:
+                sale_statusDic['出租中'] += 1
+        elif h.sale_status == '4':
+            if sale_statusDic.get('已出租',-1) == -1:
+                sale_statusDic['已出租'] = 1
+            else:
+                sale_statusDic['已出租'] += 1
+        elif h.sale_status == '5':
+            if sale_statusDic.get('预售',-1) == -1:
+                sale_statusDic['预售'] = 1
+            else:
+                sale_statusDic['预售'] += 1
+        elif h.sale_status == '6':
+            if sale_statusDic.get('其他',-1) == -1:
+                sale_statusDic['其他'] = 1
+            else:
+                sale_statusDic['其他'] += 1
+    resData = []
+    for key, value in sale_statusDic.items():
+        resData.append({
+            'name': key,
+            'value': value
+        })
+    return resData
+
+def getAnthorCharThree(hourseList):
+    return [x['name'] for x in getDicData(hourseList,'tags')],[x['value'] for x in getDicData(hourseList,'tags')]
 
 def getDicData(hourseList,fild):
     hourseDecorationDic = {}
@@ -493,10 +552,14 @@ def getYearAnalysisData(hourseList):
         })
     return resData
 
+def get_type_char_data():
+    return getTypeCharDataOne, getTypeCharDataTwo
+
 # 房屋装修情况分析数据获取函数
 def getDecorationAnalysisData(hourseList):
     return getDicData(hourseList, 'hourseDecoration')
 
 def getAnthorCharThree(hourseList):
     return [x['name'] for x in getDicData(hourseList,'tags')],[x['value'] for x in getDicData(hourseList,'tags')]
+
 

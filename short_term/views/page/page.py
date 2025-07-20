@@ -1,29 +1,28 @@
-from flask import Flask,session,render_template,redirect,Blueprint,request
-from utils.getPageData import *
-from utils.getPublicData import getAllHourse_infoMap,getHourseInfoById,addHourseInfo,editHourseInfo,deleteHourseInfo,getCitiesList,addHisotry,getUserHisotryData
+from flask import Blueprint, render_template, redirect, request, session
 import random
 import uuid
 import os
-from app import app
-from pred import index
+from short_term.utils.getPageData import getHomeGeoCharData, getHomeTagsData, getHomeRadarData, getHourseByHourseName, \
+    getPriceCharOneData, getPriceCharDataTwo, getPriceCharDataThree, getDetailCharOne, getDetailCharTwo, \
+    getTypeCharDataOne, getTypeCharDataTwo, getAnthorCharOne, getAnthorCharTwo, getAnthorCharThree, average_price, \
+    getDecorationAnalysisData, getYearAnalysisData, get_type_char_data
+from short_term.utils.getPublicData import getAllHourse_infoMap, getUserHisotryData, getHourseInfoById, addHourseInfo, deleteHourseInfo, editHourseInfo, getCitiesList, addHisotry
+from short_term.utils.Test import GET_hourse_type_List, Get_Louceng_Data, Get_priceTrend_Option, Get_crossAnalysisData, Get_cycleOption, Get_averagePrice, get_hottest_community, get_building_type_counts, Get_averageTime, district_counts, Get_priceAreaData
+from short_term.pred import index
+from short_term.utils.getPageData import getRegionData, getRoomsData, getTagsData, getRegionPriceStackData
 
-from short_term.utils.Test import GET_hourse_type_List, Get_Louceng_Data, Get_cycleOption, Get_priceTrend_Option, \
-    Get_crossAnalysisData, Get_averagePrice, Get_averageTime, get_hottest_community, district_counts, \
-    get_building_type_counts, Get_priceAreaData
-from short_term.utils.getPageData import average_price
-
-pb = Blueprint('page',__name__,url_prefix='/page',template_folder='templates')
+pb = Blueprint('page', __name__, url_prefix='/page', template_folder='templates')
 
 @pb.route('/home')
 def home():
     username = session.get('username')
     hourse_data = getAllHourse_infoMap()
     geoCharData = getHomeGeoCharData(hourse_data)
-    hourse_dataLen,maxPrice,maxHourseType,maxHourseSale = getHomeTagsData(hourse_data)
-    radarOne,radarTwo = getHomeRadarData(hourse_data)
-    historyList,predMaxLen,maxPricePred,maxCity,cityPriceList = getUserHisotryData(username)
+    hourse_dataLen, maxPrice, maxHourseType, maxHourseSale = getHomeTagsData(hourse_data)
+    radarOne, radarTwo = getHomeRadarData(hourse_data)
+    historyList, predMaxLen, maxPricePred, maxCity, cityPriceList = getUserHisotryData(username)
     return render_template('index.html'
-                           ,username=username,
+                           , username=username,
                            geoCharData=geoCharData,
                            hourse_dataLen=hourse_dataLen,
                            maxPrice=maxPrice,
@@ -38,25 +37,25 @@ def home():
                            cityPriceList=cityPriceList
                            )
 
-@pb.route('/search',methods=['GET','POST'])
+@pb.route('/search', methods=['GET', 'POST'])
 def search():
     username = session.get('username')
     hourse_data = getAllHourse_infoMap()
     maxLen = len(hourse_data)
     if request.method == 'GET':
-        hourseListRandom = [hourse_data[random.randint(0,maxLen)] for x in range(5)]
+        hourseListRandom = [hourse_data[random.randint(0, maxLen)] for x in range(5)]
         cities = [x.city for x in hourseListRandom]
     else:
-        hourseListRandom = getHourseByHourseName(request.form['searchWord'],hourse_data)
+        hourseListRandom = getHourseByHourseName(request.form['searchWord'], hourse_data)
         cities = [x.city for x in hourseListRandom]
 
     return render_template('search.html'
-                           ,username=username,
+                           , username=username,
                            cities=cities,
                            hourseListRandom=hourseListRandom
                            )
 
-@pb.route('/tableData',methods=['GET','POST'])
+@pb.route('/tableData', methods=['GET', 'POST'])
 def tableData():
     username = session.get('username')
     hourse_data = getAllHourse_infoMap()
@@ -65,8 +64,7 @@ def tableData():
                            hourse_data=hourse_data
                            )
 
-
-@pb.route('/detail',methods=['GET','POST'])
+@pb.route('/detail', methods=['GET', 'POST'])
 def detail():
     username = session.get('username')
     id = request.args.get('id')
@@ -76,7 +74,7 @@ def detail():
                            hourseInfo=hourseInfo
                            )
 
-@pb.route('/addHourse',methods=['GET','POST'])
+@pb.route('/addHourse', methods=['GET', 'POST'])
 def addHourse():
     username = session.get('username')
     if request.method == 'GET':
@@ -85,11 +83,11 @@ def addHourse():
                                )
     else:
         cover = request.files.get('cover')
-        coverFilename = str(uuid.uuid4()) + '.' + cover.filename.replace('"','').split('.')[-1]
-        save_path = os.path.join(app.root_path,'static','hourseImg',coverFilename)
+        coverFilename = str(uuid.uuid4()) + '.' + cover.filename.replace('"', '').split('.')[-1]
+        save_path = os.path.join(os.getcwd(), 'static', 'hourseImg', coverFilename)
         cover.save(save_path)
         addHourseInfo({
-            'title':request.form.get('title'),
+            'title': request.form.get('title'),
             'city': request.form.get('city'),
             'region': request.form.get('region'),
             'address': request.form.get('address'),
@@ -100,17 +98,17 @@ def addHourse():
             'company': request.form.get('company'),
             'hourseType': request.form.get('hourseType'),
             'tags': request.form.get('tags'),
-            'cover':'http://localhost:5000/static/hourseImg/' +  coverFilename
+            'cover': 'http://localhost:5000/static/hourseImg/' + coverFilename
         })
         return redirect('/page/tableData')
 
-@pb.route('/deleteHourse',methods=['GET'])
+@pb.route('/deleteHourse', methods=['GET'])
 def deleteHourse():
     id = request.args.get('id')
     deleteHourseInfo(id)
     return redirect('/page/tableData')
 
-@pb.route('/editHourse',methods=['GET','POST'])
+@pb.route('/editHourse', methods=['GET', 'POST'])
 def editHourse():
     username = session.get('username')
     if request.method == 'GET':
@@ -124,46 +122,52 @@ def editHourse():
     else:
         id = request.args.get('id')
         cover = request.files.get('cover')
-        coverFilename = str(uuid.uuid4()) + '.' + cover.filename.replace('"', '').split('.')[-1]
-        save_path = os.path.join(app.root_path, 'static', 'hourseImg', coverFilename)
-        cover.save(save_path)
+        if cover:
+            coverFilename = str(uuid.uuid4()) + '.' + cover.filename.replace('"', '').split('.')[-1]
+            save_path = os.path.join(os.getcwd(), 'static', 'hourseImg', coverFilename)
+            cover.save(save_path)
+            cover_url = 'http://localhost:5000/static/hourseImg/' + coverFilename
+        else:
+            cover_url = '0'
+
         editHourseInfo({
-                'title':request.form.get('title'),
-                'city': request.form.get('city'),
-                'region': request.form.get('region'),
-                'address': request.form.get('address'),
-                'rooms_desc': request.form.get('rooms_desc'),
-                'area_range': request.form.get('area_range'),
-                'price': request.form.get('price'),
-                'hourseDecoration': request.form.get('hourseDecoration'),
-                'company': request.form.get('company'),
-                'hourseType': request.form.get('hourseType'),
-                'tags': request.form.get('tags'),
-                'cover':('http://localhost:5000/static/hourseImg/' +  coverFilename) if request.files.get('cover') else '0'
-        },id)
+            'title': request.form.get('title'),
+            'city': request.form.get('city'),
+            'region': request.form.get('region'),
+            'address': request.form.get('address'),
+            'rooms_desc': request.form.get('rooms_desc'),
+            'area_range': request.form.get('area_range'),
+            'price': request.form.get('price'),
+            'hourseDecoration': request.form.get('hourseDecoration'),
+            'company': request.form.get('company'),
+            'hourseType': request.form.get('hourseType'),
+            'tags': request.form.get('tags'),
+            'cover': cover_url
+        }, id)
         return redirect('/page/tableData')
 
-@pb.route('/priceChar',methods=['GET'])
+@pb.route('/priceChar', methods=['GET'])
 def priceChar():
     username = session.get('username')
     citiesList = getCitiesList()
     defaultCity = request.args.get('city') if request.args.get('city') else citiesList[0]
     hourseList = getAllHourse_infoMap(defaultCity)
 
-    X,Y =getPriceCharOneData(hourseList)
-    X1,Y1 = getPriceCharDataTwo(hourseList)
+    X, Y = getPriceCharOneData(hourseList)
+    X1, Y1 = getPriceCharDataTwo(hourseList)
     Data = getPriceCharDataThree(hourseList)
-    return render_template('priceChar.html',username=username,citiesList=citiesList,X=X,Y=Y,defaultCity=defaultCity,X1=X1,Y1=Y1,Data=Data)
+    return render_template('priceChar.html', username=username, citiesList=citiesList, X=X, Y=Y, defaultCity=defaultCity, X1=X1, Y1=Y1, Data=Data)
 
-@pb.route('/detailChar',methods=['GET'])
+@pb.route('/detailChar', methods=['GET'])
 def detailChar():
     hourseList = getAllHourse_infoMap()
     username = session.get('username')
     detailCharOneData = getDetailCharOne(hourseList)
     type = request.args.get('type') if request.args.get('type') else 'small'
-    X,Y= getDetailCharTwo(hourseList,type)
-    return render_template('detailChar.html',username=username,detailCharOneData=detailCharOneData,X=X,Y=Y)
+    X, Y = getDetailCharTwo(hourseList, type)
+    return render_template('detailChar.html', username=username, detailCharOneData=detailCharOneData, X=X, Y=Y)
 
+# page.py 文件中的 typeChar 函数
 @pb.route('/typeChar', methods=['GET'])
 def typeChar():
     username = session.get('username')
@@ -177,7 +181,6 @@ def typeChar():
     typeCheTwoData = getTypeCharDataTwo(hourseList)
 
     # 新增数据处理
-    from utils.getPageData import getRegionData, getRoomsData, getTagsData, getRegionPriceStackData
     roomsData = getRoomsData(hourseList)
     tagsData = getTagsData(hourseList)
     regionData = getRegionData(hourseList)
@@ -213,16 +216,16 @@ def anthorChar():
                            X1=X1, Y1=Y1,
                            yearAnalysisData=yearAnalysisData,
                            decorationAnalysisData=decorationAnalysisData)
-@pb.route('/companyCloud',methods=['GET'])
+
+@pb.route('/companyCloud', methods=['GET'])
 def companyCloud():
     username = session.get('username')
     hourse_type_List = GET_hourse_type_List()
     Louceng_Data = Get_Louceng_Data()
-    cycleOption_Data =  Get_cycleOption()
+    cycleOption_Data = Get_cycleOption()
     price_data = Get_priceTrend_Option()
-    crossAnalysisData  = Get_crossAnalysisData()
+    crossAnalysisData = Get_crossAnalysisData()
 
-    # print(hourse_type_List)
     return render_template(
         'companyCloud.html',
         username=username,
@@ -235,16 +238,15 @@ def companyCloud():
         average_price=average_price,
     )
 
-@pb.route('/tagCloud',methods=['GET'])
+@pb.route('/tagCloud', methods=['GET'])
 def tagCloud():
     username = session.get('username')
     average_price = Get_averagePrice()
     averageTime = Get_averageTime()
-    hottest_community, heat_index  = get_hottest_community()
+    hottest_community, heat_index = get_hottest_community()
     districts, counts = district_counts()
     building_type_counts = get_building_type_counts()
     priceAreaData = Get_priceAreaData()
-    print(building_type_counts)
     return render_template(
         'tagCloud.html',
         username=username,
@@ -254,17 +256,17 @@ def tagCloud():
         heat_index=heat_index,
         districts=districts,
         counts=counts,
-        priceAreaData = Get_priceAreaData(),
+        priceAreaData=priceAreaData,
         building_type_counts=building_type_counts,
     )
 
-@pb.route('/pricePred',methods=['GET','POST'])
+@pb.route('/pricePred', methods=['GET', 'POST'])
 def pricePred():
     username = session.get('username')
     priceResult = 0
     citiesList = getCitiesList()
     if request.method == 'GET':
-        return render_template('pricePred.html', username=username, citiesList=citiesList,priceResult=priceResult)
+        return render_template('pricePred.html', username=username, citiesList=citiesList, priceResult=priceResult)
     else:
         statusResult = 1
         if request.form.get('sale_status') == '在售':
@@ -279,9 +281,8 @@ def pricePred():
             statusResult = 5
         elif request.form.get('sale_status') == '其他':
             statusResult = 6
+
         model = index.model_train(index.getData())
-        priceResult = index.pred(model,request.form.get('city'),int(request.form.get('rooms_desc')),int(request.form.get('area_range')),request.form.get('hourseType'),statusResult)
-        addHisotry(request.form.get('city'),priceResult,username)
+        priceResult = index.pred(model, request.form.get('city'), int(request.form.get('rooms_desc')), int(request.form.get('area_range')), request.form.get('hourseType'), statusResult)
+        addHisotry(request.form.get('city'), priceResult, username)
         return render_template('pricePred.html', username=username, citiesList=citiesList, priceResult=priceResult)
-
-

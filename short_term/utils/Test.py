@@ -1,6 +1,6 @@
 from collections import defaultdict
 from flask_sqlalchemy import SQLAlchemy
-from model.Trading import Trading  # 确保这个导入路径正确
+from short_term.model.Trading import Trading  # 确保这个导入路径正确
 
 
 
@@ -134,7 +134,7 @@ def Get_priceTrend_Option():
 
 
 from flask_sqlalchemy import SQLAlchemy
-from model.Trading import Trading  # 确保这个导入路径正确
+from short_term.model.Trading import Trading  # 确保这个导入路径正确
 
 
 def Get_crossAnalysisData():

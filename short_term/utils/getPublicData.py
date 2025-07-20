@@ -1,11 +1,10 @@
 import json
 from datetime import datetime
-
-from db import db
-from model.History import History
-from model.Hourse_info import Hourse_info
-from model.User import User
-from utils.query import querys
+from short_term.db import db
+from short_term.model.History import History
+from short_term.model.Hourse_info import Hourse_info
+from short_term.model.User import User
+from short_term.utils.query import querys
 
 cityList = [
     {'province': '北京', 'city': ['北京市']},

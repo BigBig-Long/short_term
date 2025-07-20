@@ -1,16 +1,20 @@
-from flask import Flask,session,render_template,redirect,request
+from flask import Flask, session, render_template, redirect, request
 from config import Config
 from db import db
 import re
+
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
 
 from views.page import page
 from views.user import user
+# 导入蓝图
+
+
+# 注册蓝图
 app.register_blueprint(page.pb)
 app.register_blueprint(user.ub)
-
 
 @app.route('/')
 def index():
@@ -19,7 +23,7 @@ def index():
 @app.before_request
 def before_request():
     pat = re.compile(r'^/static')
-    if re.search(pat,request.path):
+    if re.search(pat, request.path):
         return
     if request.path == '/user/login':
         return
@@ -34,8 +38,6 @@ def before_request():
 @app.route('/<path:path>')
 def catch_all(path):
     return render_template('404.html')
-
-
 
 if __name__ == '__main__':
     app.run()

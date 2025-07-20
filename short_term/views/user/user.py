@@ -1,9 +1,7 @@
 from flask import Flask,session,render_template,redirect,Blueprint,request
-from model.User import User
-from model.History import History
-from utils.errorResponse import *
-from app import app
-from db import db
+from short_term.model.User import User
+from short_term.utils.errorResponse import *
+from short_term.db import db
 
 ub = Blueprint('user',__name__,url_prefix='/user',template_folder='templates')
 
