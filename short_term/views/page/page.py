@@ -145,7 +145,6 @@ def editHourse():
             'cover': cover_url
         }, id)
         return redirect('/page/tableData')
-
 @pb.route('/priceChar', methods=['GET'])
 def priceChar():
     username = session.get('username')
