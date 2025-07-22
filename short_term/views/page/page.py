@@ -11,6 +11,20 @@ from short_term.utils.Test import GET_hourse_type_List, Get_Louceng_Data, Get_pr
 from short_term.pred import index
 from short_term.utils.getPageData import getRegionData, getRoomsData, getTagsData, getRegionPriceStackData
 
+"""
+作者注释：如果你发现在PyCharm里出现了未检测到index.html页面的警告，但是运行时并没有出错，这是因为：
+        Flask 的模板搜索机制​​是：
+            首先在蓝图指定的 template_folder (模版文件夹) 中查找
+            然后在全局的 templates 目录查找
+            最后在其他已注册蓝图的模板目录查找
+        即使第一个位置没找到，可能在后续位置找到了，不信你试一下
+        使用：
+        pb = Blueprint('page', __name__, url_prefix='/page', template_folder='templates')
+        print(f"蓝图模板文件夹: {pb.template_folder}")
+        查看蓝图模版文件夹是谁，这里会发现是 short_term/templates，把views里面的templates的index.html复制一份到templates里这个警告就会消失了
+"""
+
+
 pb = Blueprint('page', __name__, url_prefix='/page', template_folder='templates')
 
 @pb.route('/home')
