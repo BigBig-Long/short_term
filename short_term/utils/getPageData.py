@@ -535,22 +535,27 @@ def getAnthorCharTwo(hourseList):
             'value': value
         })
     return resData
-# 假设的年限分析数据获取函数
+
+
 def getYearAnalysisData(hourseList):
     yearDic = {}
     for h in hourseList:
-        year = h.open_date.split('-')[0]  # 假设 open_date 格式为 YYYY-MM-DD
-        if yearDic.get(year, -1) == -1:
-            yearDic[year] = 1
-        else:
+        # 提取年份（假设open_date格式为YYYY-MM-DD）
+        year = h.open_date.split('-')[0]
+        # 统计每年的数量
+        if year in yearDic:
             yearDic[year] += 1
+        else:
+            yearDic[year] = 1
+    # 转换为列表并按年份排序（升序）
     resData = []
-    for key, value in yearDic.items():
+    for key in sorted(yearDic.keys()):
         resData.append({
             'name': key,
-            'value': value
+            'value': yearDic[key]
         })
     return resData
+
 
 def get_type_char_data():
     return getTypeCharDataOne, getTypeCharDataTwo
