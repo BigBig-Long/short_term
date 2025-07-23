@@ -8,9 +8,9 @@ CREATE TABLE house_sales (
     year_2022 INT NOT NULL COMMENT '2022年销售套数',
     year_2023 INT NOT NULL COMMENT '2023年销售套数',
     year_2024 INT NOT NULL COMMENT '2024年销售套数'
-) COMMENT '2018-2024年各城市商品房销售套数数据（实际规模的1.8倍）';
+) COMMENT '2018-2024年各城市商品房销售套数数据，数据来源于中指网，可能会有已经交易了但是退掉的，所有可能和实际数据存在微小差异';
 
--- 插入所有70个城市的完整数据（按1.8倍调整）
+-- 插入所有70个城市的完整数据
 INSERT INTO house_sales (city, year_2018, year_2019, year_2020, year_2021, year_2022, year_2023, year_2024) VALUES
 -- 一线城市(19个)
 ('上海', 154166, 143734, 122845, 166583, 130257, 123172, 128246),
