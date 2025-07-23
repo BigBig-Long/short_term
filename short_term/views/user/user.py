@@ -1,8 +1,9 @@
 from flask import Flask,session,render_template,redirect,Blueprint,request
-from short_term.model.User import User
-from short_term.utils.errorResponse import *
-from short_term.db import db
+from short_term.short_term.model.User import User
+from short_term.short_term.utils.errorResponse import *
+from short_term.short_term.db import db
 
+# 创建蓝图，实现路由的接收
 ub = Blueprint('user',__name__,url_prefix='/user',template_folder='templates')
 
 @ub.route('/login',methods=['GET','POST'])
