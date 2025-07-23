@@ -1,6 +1,6 @@
 import json
 
-from short_term.short_term.utils.getPublicData import cityList
+from short_term.utils.getPublicData import cityList
 
 def getHomeGeoCharData(hourse_data):
     average_price_dic = average_price(hourse_data)
@@ -304,41 +304,6 @@ def getAnthorCharTwo(hourseList):
 def getAnthorCharThree(hourseList):
     return [x['name'] for x in getDicData(hourseList,'tags')],[x['value'] for x in getDicData(hourseList,'tags')]
 
-def getDicData(hourseList,fild):
-    hourseDecorationDic = {}
-    for h in hourseList:
-        if fild == 'hourseDecoration' and h.hourseDecoration != '':
-            if hourseDecorationDic.get(h.hourseDecoration, -1) == -1:
-                hourseDecorationDic[h.hourseDecoration] = 1
-            else:
-                hourseDecorationDic[h.hourseDecoration] += 1
-        elif fild == 'hourseType':
-            if hourseDecorationDic.get(h.hourseType, -1) == -1:
-                hourseDecorationDic[h.hourseType] = 1
-            else:
-                hourseDecorationDic[h.hourseType] += 1
-        elif fild == 'tags':
-            for tag in h.tags:
-                if hourseDecorationDic.get(tag, -1) == -1:
-                    hourseDecorationDic[tag] = 1
-                else:
-                    hourseDecorationDic[tag] += 1
-
-    resData = []
-    for key, value in hourseDecorationDic.items():
-        resData.append({
-            'name':key,
-            'value':value
-        })
-    return resData
-
-def getTypeCharDataOne(hourseList):
-    return getDicData(hourseList,'hourseDecoration')
-
-def getTypeCharDataTwo(hourseList):
-    return getDicData(hourseList,'hourseType')
-
-
 # utils/getPageData.py
 def getRegionData(hourseList):
     # 初始化数据结构：{区域: {房屋类型: 数量}}
@@ -484,59 +449,6 @@ def getTagsData(hourseList):
     # 转换为词云所需格式
     return [{'name': k, 'value': v} for k, v in tagsDic.items()]
 
-# 1. 全局数据：各城市未交房数（所有城市，不随选择变化）
-def getAnthorCharOne(hourseList):
-    cityDic = {}
-    for i in hourseList:
-        if i.on_time == '0000-00-00 00:00:00':
-            if cityDic.get(i.city,-1) == -1:
-                cityDic[i.city] = 1
-            else:
-                cityDic[i.city] += 1
-    return list(cityDic.keys()),list(cityDic.values())
-
-def getAnthorCharTwo(hourseList):
-    sale_statusDic = {}
-    for h in hourseList:
-        if h.sale_status == '1':
-            if sale_statusDic.get('在售',-1) == -1:
-                sale_statusDic['在售'] = 1
-            else:
-                sale_statusDic['在售'] += 1
-        elif h.sale_status == '2':
-            if sale_statusDic.get('已售',-1) == -1:
-                sale_statusDic['已售'] = 1
-            else:
-                sale_statusDic['已售'] += 1
-        elif h.sale_status == '3':
-            if sale_statusDic.get('出租中',-1) == -1:
-                sale_statusDic['出租中'] = 1
-            else:
-                sale_statusDic['出租中'] += 1
-        elif h.sale_status == '4':
-            if sale_statusDic.get('已出租',-1) == -1:
-                sale_statusDic['已出租'] = 1
-            else:
-                sale_statusDic['已出租'] += 1
-        elif h.sale_status == '5':
-            if sale_statusDic.get('预售',-1) == -1:
-                sale_statusDic['预售'] = 1
-            else:
-                sale_statusDic['预售'] += 1
-        elif h.sale_status == '6':
-            if sale_statusDic.get('其他',-1) == -1:
-                sale_statusDic['其他'] = 1
-            else:
-                sale_statusDic['其他'] += 1
-    resData = []
-    for key, value in sale_statusDic.items():
-        resData.append({
-            'name': key,
-            'value': value
-        })
-    return resData
-
-
 def getYearAnalysisData(hourseList):
     yearDic = {}
     for h in hourseList:
@@ -563,8 +475,3 @@ def get_type_char_data():
 # 房屋装修情况分析数据获取函数
 def getDecorationAnalysisData(hourseList):
     return getDicData(hourseList, 'hourseDecoration')
-
-def getAnthorCharThree(hourseList):
-    return [x['name'] for x in getDicData(hourseList,'tags')],[x['value'] for x in getDicData(hourseList,'tags')]
-
-
