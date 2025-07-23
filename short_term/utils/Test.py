@@ -1,7 +1,8 @@
 from collections import defaultdict
 from flask_sqlalchemy import SQLAlchemy
-from short_term.model.Trading import Trading  # 确保这个导入路径正确
-
+from short_term.short_term.model.Trading import Trading  # 确保这个导入路径正确
+from flask_sqlalchemy import SQLAlchemy
+from short_term.short_term.model.Trading import Trading  # 确保这个导入路径正确
 
 
 def GET_hourse_type_List():
