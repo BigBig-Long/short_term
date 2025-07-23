@@ -2,14 +2,14 @@ from flask import Blueprint, render_template, redirect, request, session
 import random
 import uuid
 import os
-from short_term.utils.getPageData import getHomeGeoCharData, getHomeTagsData, getHomeRadarData, getHourseByHourseName, \
+from short_term.short_term.utils.getPageData import getHomeGeoCharData, getHomeTagsData, getHomeRadarData, getHourseByHourseName, \
     getPriceCharOneData, getPriceCharDataTwo, getPriceCharDataThree, getDetailCharOne, getDetailCharTwo, \
     getTypeCharDataOne, getTypeCharDataTwo, getAnthorCharOne, getAnthorCharTwo, getAnthorCharThree, average_price, \
     getDecorationAnalysisData, getYearAnalysisData, get_type_char_data
-from short_term.utils.getPublicData import getAllHourse_infoMap, getUserHisotryData, getHourseInfoById, addHourseInfo, deleteHourseInfo, editHourseInfo, getCitiesList, addHisotry
-from short_term.utils.Test import GET_hourse_type_List, Get_Louceng_Data, Get_priceTrend_Option, Get_crossAnalysisData, Get_cycleOption, Get_averagePrice, get_hottest_community, get_building_type_counts, Get_averageTime, district_counts, Get_priceAreaData
-from short_term.pred import index
-from short_term.utils.getPageData import getRegionData, getRoomsData, getTagsData, getRegionPriceStackData
+from short_term.short_term.utils.getPublicData import getAllHourse_infoMap, getUserHisotryData, getHourseInfoById, addHourseInfo, deleteHourseInfo, editHourseInfo, getCitiesList, addHisotry
+from short_term.short_term.utils.Test import GET_hourse_type_List, Get_Louceng_Data, Get_priceTrend_Option, Get_crossAnalysisData, Get_cycleOption, Get_averagePrice, get_hottest_community, get_building_type_counts, Get_averageTime, district_counts, Get_priceAreaData
+from short_term.short_term.pred import index
+from short_term.short_term.utils.getPageData import getRegionData, getRoomsData, getTagsData, getRegionPriceStackData
 
 """
 作者注释：如果你发现在PyCharm里出现了未检测到index.html页面的警告，但是运行时并没有出错，这是因为：
