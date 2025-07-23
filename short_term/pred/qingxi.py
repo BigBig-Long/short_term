@@ -3,7 +3,7 @@ import numpy as np
 import re
 
 
-INPUT_FILE = "../../../short_term1/short_term/short_term/spider/hourse_info.csv"
+INPUT_FILE = "../spider/hourse_info.csv"
 OUTPUT_FILE = "../spider/hourse_info_cleaned.csv"
 PRICE_COL = 'price'
 DATE_COL = 'open_date'
