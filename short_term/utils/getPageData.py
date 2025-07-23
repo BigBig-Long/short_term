@@ -1,6 +1,6 @@
 import json
 
-from short_term.utils.getPublicData import cityList
+from short_term.short_term.utils.getPublicData import cityList
 
 def getHomeGeoCharData(hourse_data):
     average_price_dic = average_price(hourse_data)
