@@ -322,13 +322,13 @@
                 <div class="chart-title" style="width: 100%">区域热度对比</div>
                 <div id="areaHeatChart" class="chart"></div>
             </div>
-            <div class="chart-box">
-                <div class="chart-title">建筑类型偏好</div>
-                <div id="buildingTypeChart" class="chart"></div>
-            </div>
               <div class="chart-box">
                 <div class="chart-title">成交价格与面积的关系</div>
                 <div id="priceAreaChart" class="chart"></div>
+            </div><br>
+              <div class="chart-box">
+                <div class="chart-title">建筑类型偏好</div>
+                <div id="buildingTypeChart" class="chart"></div>
             </div>
               <div class="chart-box">
                 <div class="chart-title" >成交渠道转化漏斗</div>
@@ -477,8 +477,12 @@ const areaHeatOption = {
     },
     xAxis: {
         type: 'category',
-        data: {{ districts | tojson }},
-        name: '区域'
+        data: ['武侯', '郫都', '天府新区', '成华', '金牛', '龙泉驿', '温江', '双流', '青羊', '高新', '高新西', '锦江', '新都'],
+        name: '区域',
+        axisLabel: {
+        rotate: 30, // 将标签旋转 30 度interval: 0,
+        interval: 0
+    }
     },
     yAxis: {
         type: 'value',
