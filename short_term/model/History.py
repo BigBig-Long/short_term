@@ -1,7 +1,9 @@
-from db import db
-class History(db.Model):
+from .. db import database
+
+
+class History(database.Model):
     __tablename__='history'
-    id=db.Column(db.Integer,primary_key=True,autoincrement=True)
-    city=db.Column(db.String(255),nullable=False)
-    price=db.Column(db.String(255),nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    id=database.Column(database.Integer,primary_key=True,autoincrement=True)
+    city=database.Column(database.String(255),nullable=False)
+    price=database.Column(database.String(255),nullable=False)
+    user_id = database.Column(database.Integer, database.ForeignKey('user.user_id'), nullable=False)

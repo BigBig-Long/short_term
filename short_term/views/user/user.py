@@ -1,7 +1,7 @@
 from flask import Flask,session,render_template,redirect,Blueprint,request
-from short_term.short_term.model.User import User
-from short_term.short_term.utils.errorResponse import *
-from short_term.short_term.db import db
+from short_term.model.User import User
+from short_term.utils.errorResponse import *
+from short_term.db import database
 
 # 创建蓝图，实现路由的接收
 ub = Blueprint('user',__name__,url_prefix='/user',template_folder='templates')
@@ -25,8 +25,8 @@ def register():
         if user:
             return errorResponse('该用户名已存在')
         newUser = User(user_name=request.form['username'],user_password=request.form['password'])
-        db.session.add(newUser)
-        db.session.commit()
+        database.session.add(newUser)
+        database.session.commit()
         return redirect('/user/login')
     else:
         return render_template('register.html')

@@ -1,6 +1,6 @@
 from flask import Flask, session, render_template, redirect, request, Blueprint
 from config import Config
-from db import db
+from short_term.db import database
 import re
 
 
@@ -8,7 +8,7 @@ from views.page import page
 from views.user import user
 app = Flask(__name__)
 app.config.from_object(Config)
-db.init_app(app)
+database.init_app(app)
 
 # 注册蓝图
 # 所有的 /page/* 请求都交给page模块

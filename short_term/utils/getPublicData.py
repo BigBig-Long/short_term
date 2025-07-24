@@ -1,10 +1,10 @@
 import json
 from datetime import datetime
-from short_term.short_term.db import db
-from short_term.short_term.model.History import History
-from short_term.short_term.model.Hourse_info import Hourse_info
-from short_term.short_term.model.User import User
-from short_term.short_term.utils.query import querys
+from short_term.db import database
+from short_term.model.History import History
+from short_term.model.Hourse_info import Hourse_info
+from short_term.model.User import User
+from short_term.utils.query import querys
 
 cityList = [
     {'province': '北京', 'city': ['北京市']},
@@ -166,8 +166,8 @@ def getHourseInfoById(id):
 def addHisotry(city, price, username):
     user = User.query.filter_by(user_name=username).first()
     newHistory = History(city=city, price=price, user=user)
-    db.session.add(newHistory)
-    db.session.commit()
+    database.session.add(newHistory)
+    database.session.commit()
 
 
 def addHourseInfo(hourseInfo):
@@ -192,8 +192,8 @@ def addHourseInfo(hourseInfo):
                          detail_url=hourseInfo['detail_url'], open_date=hourseInfo['open_date']
                          )
 
-    db.session.add(hourse)
-    db.session.commit()
+    database.session.add(hourse)
+    database.session.commit()
 
 
 def editHourseInfo(hourseInfo, id):
@@ -215,10 +215,10 @@ def editHourseInfo(hourseInfo, id):
     hourse.tags = hourseInfo['tags']
     if hourseInfo['cover'] != '0':
         hourse.cover = hourseInfo['cover']
-    db.session.commit()
+    database.session.commit()
 
 
 def deleteHourseInfo(id):
     hourseInfo = getHourseInfoById(id)
-    db.session.delete(hourseInfo)
-    db.session.commit()
+    database.session.delete(hourseInfo)
+    database.session.commit()
