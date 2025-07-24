@@ -7,7 +7,7 @@ from short_term.utils.getPageData import getHomeGeoCharData, getHomeTagsData, ge
     getPriceCharOneData, getPriceCharDataTwo, getPriceCharDataThree, getDetailCharOne, getDetailCharTwo, \
     getTypeCharDataOne, getTypeCharDataTwo, getAnthorCharOne, getAnthorCharTwo, getAnthorCharThree, average_price, \
     getDecorationAnalysisData, getYearAnalysisData, get_type_char_data, getTop10CityAvgPrice
-from short_term.utils.getPublicData import getAllHourse_infoMap, getUserHisotryData, getHourseInfoById, addHourseInfo, deleteHourseInfo, editHourseInfo, getCitiesList, addHisotry
+from short_term.utils.getPublicData import getAllHourse_infoMap, getHouseSalesData, getUserHisotryData, getHourseInfoById, addHourseInfo, deleteHourseInfo, editHourseInfo, getCitiesList, addHisotry
 from short_term.utils.Test import GET_hourse_type_List, Get_Louceng_Data, Get_priceTrend_Option, Get_crossAnalysisData, Get_cycleOption, Get_averagePrice, get_hottest_community, get_building_type_counts, Get_averageTime, district_counts, Get_priceAreaData
 from short_term.pred import index
 from short_term.utils.getPageData import getRegionData, getRoomsData, getTagsData, getRegionPriceStackData
@@ -31,11 +31,20 @@ pb = Blueprint('page', __name__, url_prefix='/page', template_folder='templates'
 @pb.route('/home')
 def home():
     username = session.get('username')
+
     hourse_data = getAllHourse_infoMap()
+
     geoCharData = getHomeGeoCharData(hourse_data)
+
     hourse_dataLen, maxPrice, maxHourseType, maxHourseSale = getHomeTagsData(hourse_data)
+
     radarOne, radarTwo = getHomeRadarData(hourse_data)
+
+    # 2018-2024年成交量信息
+    house_sales = getHouseSalesData()
+
     historyList, predMaxLen, maxPricePred, maxCity, cityPriceList = getUserHisotryData(username)
+
     return render_template('index.html'
                            , username=username,
                            geoCharData=geoCharData,
@@ -49,8 +58,11 @@ def home():
                            predMaxLen=predMaxLen,
                            maxPricePred=maxPricePred,
                            maxCity=maxCity,
-                           cityPriceList=cityPriceList
+                           cityPriceList=cityPriceList,
+                           house_sales=house_sales
                            )
+
+
 
 @pb.route('/search', methods=['GET', 'POST'])
 def search():
