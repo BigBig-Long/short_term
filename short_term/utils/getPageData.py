@@ -495,16 +495,28 @@ def getTagsData(hourseList):
     # 转换为词云所需格式
     return [{'name': k, 'value': v} for k, v in tagsDic.items()]
 
+
 def getYearAnalysisData(hourseList):
     yearDic = {}
     for h in hourseList:
+        # 先判断日期是否为空或无效
+        if not h.open_date or str(h.open_date).strip() in ['', 'N/A', 'nan']:
+            continue  # 跳过空值或无效日期
+
         # 提取年份（假设open_date格式为YYYY-MM-DD）
-        year = h.open_date.split('-')[0]
-        # 统计每年的数量
-        if year in yearDic:
-            yearDic[year] += 1
-        else:
-            yearDic[year] = 1
+        try:
+            year = h.open_date.split('-')[0]
+            # 简单验证年份格式（4位数字）
+            if len(year) == 4 and year.isdigit():
+                # 统计每年的数量
+                if year in yearDic:
+                    yearDic[year] += 1
+                else:
+                    yearDic[year] = 1
+        except (AttributeError, IndexError):
+            # 处理无法分割的异常情况（如格式错误）
+            continue
+
     # 转换为列表并按年份排序（升序）
     resData = []
     for key in sorted(yearDic.keys()):
@@ -513,7 +525,6 @@ def getYearAnalysisData(hourseList):
             'value': yearDic[key]
         })
     return resData
-
 
 def get_type_char_data():
     return getTypeCharDataOne, getTypeCharDataTwo
