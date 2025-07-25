@@ -6,7 +6,7 @@ import os
 from short_term.utils.getPageData import getHomeGeoCharData, getHomeTagsData, getHomeRadarData, getHourseByHourseName, \
     getPriceCharOneData, getPriceCharDataTwo, getPriceCharDataThree, getDetailCharOne, getDetailCharTwo, \
     getTypeCharDataOne, getTypeCharDataTwo, getAnthorCharOne, getAnthorCharTwo, getAnthorCharThree, average_price, \
-    getDecorationAnalysisData, getYearAnalysisData, get_type_char_data, getTop10CityAvgPrice
+    getDecorationAnalysisData, getYearAnalysisData, get_type_char_data, getTop10CityAvgPrice,get_price_distribution
 from short_term.utils.getPublicData import getAllHourse_infoMap, getHouseSalesData, getUserHisotryData, getHourseInfoById, addHourseInfo, deleteHourseInfo, editHourseInfo, getCitiesList, addHisotry
 from short_term.utils.Test import GET_hourse_type_List, Get_Louceng_Data, Get_priceTrend_Option, Get_crossAnalysisData, Get_cycleOption, Get_averagePrice, get_hottest_community, get_building_type_counts, Get_averageTime, district_counts, Get_priceAreaData
 from short_term.pred import index
@@ -201,7 +201,12 @@ def priceChar():
         "box_data": [box_data[city] for city in sorted_cities]
     }
 
-    return render_template('priceChar.html', username=username, citiesList=citiesList, X=X, Y=Y, defaultCity=defaultCity, X1=X1, Y1=Y1, Data=Data,topCities=topCities, avgPrices=avgPrices, chart_data=chart_data)
+
+    price_dist = get_price_distribution()
+    d1 = price_dist.columns.tolist()
+    d2 = price_dist.to_dict(orient='index')
+
+    return render_template('priceChar.html', username=username, citiesList=citiesList, X=X, Y=Y, defaultCity=defaultCity, X1=X1, Y1=Y1, Data=Data,topCities=topCities, avgPrices=avgPrices, chart_data=chart_data,price_dist=price_dist,d1 = d1, d2 = d2)
 
 @pb.route('/detailChar', methods=['GET'])
 def detailChar():
