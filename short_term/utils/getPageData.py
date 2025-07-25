@@ -262,19 +262,34 @@ def getDetailCharTwo(hourseList,type):
 
     return xData,yData
 
-def getDicData(hourseList,fild):
+
+def getDicData(hourseList, fild):
+    """
+    通用数据统计函数，根据指定字段对房屋列表进行分组计数
+    :param hourseList: 房屋信息列表，每个元素为包含房屋属性的对象
+    :param fild: 需统计的字段名，支持'hourseDecoration'(装修情况)、'hourseType'(房屋类型)、'tags'(标签)
+    :return: 统计结果列表，每个元素为{'name': 字段值, 'value': 计数}
+    """
+    # 初始化统计字典，键为字段值，值为出现次数
     hourseDecorationDic = {}
+
     for h in hourseList:
+        # 处理房屋装修情况统计（过滤空值）
         if fild == 'hourseDecoration' and h.hourseDecoration != '':
+            # 若字典中无该键则初始化计数为1，否则计数+1
             if hourseDecorationDic.get(h.hourseDecoration, -1) == -1:
                 hourseDecorationDic[h.hourseDecoration] = 1
             else:
                 hourseDecorationDic[h.hourseDecoration] += 1
+
+        # 处理房屋类型统计（无需过滤空值，直接统计）
         elif fild == 'hourseType':
             if hourseDecorationDic.get(h.hourseType, -1) == -1:
                 hourseDecorationDic[h.hourseType] = 1
             else:
                 hourseDecorationDic[h.hourseType] += 1
+
+        # 处理标签统计（标签为列表，需遍历每个标签单独计数）
         elif fild == 'tags':
             for tag in h.tags:
                 if hourseDecorationDic.get(tag, -1) == -1:
@@ -282,63 +297,76 @@ def getDicData(hourseList,fild):
                 else:
                     hourseDecorationDic[tag] += 1
 
+    # 转换统计结果为指定格式的列表
     resData = []
     for key, value in hourseDecorationDic.items():
         resData.append({
-            'name':key,
-            'value':value
+            'name': key,  # 字段值
+            'value': value  # 出现次数
         })
     return resData
 
-def getTypeCharDataOne(hourseList):
-    return getDicData(hourseList,'hourseDecoration')
 
 def getTypeCharDataTwo(hourseList):
-    return getDicData(hourseList,'hourseType')
+    """获取房屋类型统计数据（调用通用统计函数）"""
+    return getDicData(hourseList, 'hourseType')
+
+
+def getTypeCharDataOne(hourseList):
+    """获取房屋装修情况统计数据（调用通用统计函数）"""
+    return getDicData(hourseList, 'hourseDecoration')
+
 
 def getAnthorCharOne(hourseList):
+    """
+    统计特定时间字段为空的房屋所在城市分布
+    :param hourseList: 房屋信息列表
+    :return: 两个列表，分别为城市名列表和对应城市的房屋数量列表
+    """
     cityDic = {}
     for i in hourseList:
+        # 筛选时间字段为'0000-00-00 00:00:00'的房屋
         if i.on_time == '0000-00-00 00:00:00':
-            if cityDic.get(i.city,-1) == -1:
+            # 统计城市出现次数
+            if cityDic.get(i.city, -1) == -1:
                 cityDic[i.city] = 1
             else:
                 cityDic[i.city] += 1
-    return list(cityDic.keys()),list(cityDic.values())
+    # 返回城市名列表和对应的数量列表
+    return list(cityDic.keys()), list(cityDic.values())
+
 
 def getAnthorCharTwo(hourseList):
+    """
+    统计房屋销售状态分布（在售/已售/出租中/已出租/预售/其他）
+    :param hourseList: 房屋信息列表
+    :return: 统计结果列表，每个元素为{'name': 状态名, 'value': 计数}
+    """
     sale_statusDic = {}
     for h in hourseList:
+        # 根据销售状态编码映射为中文名称并计数
         if h.sale_status == '1':
-            if sale_statusDic.get('在售',-1) == -1:
-                sale_statusDic['在售'] = 1
-            else:
-                sale_statusDic['在售'] += 1
+            key = '在售'
         elif h.sale_status == '2':
-            if sale_statusDic.get('已售',-1) == -1:
-                sale_statusDic['已售'] = 1
-            else:
-                sale_statusDic['已售'] += 1
+            key = '已售'
         elif h.sale_status == '3':
-            if sale_statusDic.get('出租中',-1) == -1:
-                sale_statusDic['出租中'] = 1
-            else:
-                sale_statusDic['出租中'] += 1
+            key = '出租中'
         elif h.sale_status == '4':
-            if sale_statusDic.get('已出租',-1) == -1:
-                sale_statusDic['已出租'] = 1
-            else:
-                sale_statusDic['已出租'] += 1
+            key = '已出租'
         elif h.sale_status == '5':
-            if sale_statusDic.get('预售',-1) == -1:
-                sale_statusDic['预售'] = 1
-            else:
-                sale_statusDic['预售'] += 1
+            key = '预售'
         elif h.sale_status == '6':
-            if sale_statusDic.get('其他',-1) == -1:
-                sale_statusDic['其他'] = 1
-            else:
-                sale_statusDic['其他'] += 1
+            key = '其他'
+        else:
+            continue  # 跳过未定义的状态
+
+        # 更新计数
+        if sale_statusDic.get(key, -1) == -1:
+            sale_statusDic[key] = 1
+        else:
+            sale_statusDic[key] += 1
+
+    # 转换为指定格式的结果列表
     resData = []
     for key, value in sale_statusDic.items():
         resData.append({
@@ -347,98 +375,123 @@ def getAnthorCharTwo(hourseList):
         })
     return resData
 
+
 def getAnthorCharThree(hourseList):
-    return [x['name'] for x in getDicData(hourseList,'tags')],[x['value'] for x in getDicData(hourseList,'tags')]
+    """
+    提取房屋标签的名称和对应数量列表（用于图表展示）
+    :param hourseList: 房屋信息列表
+    :return: 两个列表，分别为标签名称列表和对应数量列表
+    """
+    # 先通过通用函数获取标签统计结果，再拆分名称和数量
+    tag_data = getDicData(hourseList, 'tags')
+    return [x['name'] for x in tag_data], [x['value'] for x in tag_data]
+
 
 # utils/getPageData.py
 def getRegionData(hourseList):
+    """
+    生成区域-房屋类型的数量统计，用于堆叠柱状图数据
+    :param hourseList: 房屋信息列表
+    :return: ECharts所需格式的数据，包含categories(区域)和series(各类型数据)
+    """
     # 初始化数据结构：{区域: {房屋类型: 数量}}
     region_type_dict = {}
 
     for h in hourseList:
-        region = h.region
-        house_type = h.hourseType  # 房屋类型字段
-
+        region = h.region  # 区域
+        house_type = h.hourseType  # 房屋类型
+        # 跳过区域或房屋类型为空的数据
         if not region or not house_type:
             continue
 
-        # 初始化区域
+        # 初始化区域对应的字典（若不存在）
         if region not in region_type_dict:
             region_type_dict[region] = {}
 
-        # 统计房屋类型数量
+        # 累加该区域下该房屋类型的数量
         region_type_dict[region][house_type] = region_type_dict[region].get(house_type, 0) + 1
 
-    # 转换为 ECharts 所需格式
-    categories = list(region_type_dict.keys())  # 区域列表
-    series = []
+    # 转换为ECharts堆叠图所需格式
+    categories = list(region_type_dict.keys())  # 区域列表（x轴分类）
+    series = []  # 数据系列（各房屋类型的柱状图数据）
 
-    # 获取所有可能的房屋类型
+    # 获取所有可能的房屋类型（用于生成系列）
     all_house_types = set()
     for region_data in region_type_dict.values():
         all_house_types.update(region_data.keys())
 
-    # 为每种房屋类型创建一个系列
+    # 为每种房屋类型创建一个数据系列
     for house_type in all_house_types:
         data = []
+        # 按区域顺序填充该类型的数量（无数据则为0）
         for region in categories:
             data.append(region_type_dict[region].get(house_type, 0))
-
+        # 添加系列数据（设置堆叠属性）
         series.append({
-            'name': house_type,
-            'type': 'bar',
-            'stack': '总量',  # 设置堆叠
-            'data': data
+            'name': house_type,  # 房屋类型名称
+            'type': 'bar',  # 图表类型为柱状图
+            'stack': '总量',  # 启用堆叠效果
+            'data': data  # 各区域的数量数据
         })
 
     return {
-        'categories': categories,
-        'series': series
+        'categories': categories,  # 区域分类
+        'series': series  # 堆叠图数据系列
     }
 
 
 def getRegionPriceStackData(hourseList):
     """
-    生成区域-房屋类型均价数据，用于堆叠图
-    返回格式: [{'region': '区域名', 'house_types': [{'type': '类型名', 'average_price': 均价}, ...]}, ...]
+    生成区域-房屋类型的均价统计，用于堆叠图展示
+    :param hourseList: 房屋信息列表
+    :return: 格式化数据，格式为：
+             [{'region': '区域名', 'house_types': [{'type': '类型名', 'average_price': 均价}, ...]}, ...]
     """
     # 初始化数据结构: {区域: {房屋类型: [价格列表]}}
+    # 存储每个区域下每种房屋类型的所有价格，用于后续计算均价
     region_type_prices = {}
 
     for h in hourseList:
-        region = h.region
-        house_type = h.hourseType
-        price = h.price
+        region = h.region  # 区域
+        house_type = h.hourseType  # 房屋类型
+        price = h.price  # 价格
 
+        # 跳过区域、类型或价格为空的数据
         if not region or not house_type or not price:
             continue
 
         try:
+            # 将价格转换为数值（处理可能的字符串格式）
             price_num = float(price)
 
-            # 初始化区域
+            # 初始化区域字典（若不存在）
             if region not in region_type_prices:
                 region_type_prices[region] = {}
 
-            # 初始化房屋类型价格列表
+            # 初始化该区域下房屋类型的价格列表（若不存在）
             if house_type not in region_type_prices[region]:
                 region_type_prices[region][house_type] = []
 
+            # 将价格添加到对应列表
             region_type_prices[region][house_type].append(price_num)
+
         except ValueError:
-            continue  # 跳过无效价格
+            # 跳过无法转换为数值的无效价格
+            continue
 
     # 计算均价并格式化结果
     result = []
     for region, type_prices in region_type_prices.items():
         house_types = []
+        # 计算该区域下每种房屋类型的均价
         for house_type, prices in type_prices.items():
-            # 计算均价并保留两位小数
+            # 均价 = 总价 / 数量，保留两位小数
             avg_price = round(sum(prices) / len(prices), 2)
             house_types.append({
                 'type': house_type,
                 'average_price': avg_price
             })
+        # 按区域整理结果
         result.append({
             'region': region,
             'house_types': house_types
@@ -446,49 +499,69 @@ def getRegionPriceStackData(hourseList):
 
     return result
 
+
 def getRoomsData(hourseList):
-    roomsDic = {}
+    """
+    统计房屋户型（几室）的分布情况
+    :param hourseList: 房屋信息列表
+    :return: 统计结果列表，每个元素为{'name': 'X室', 'value': 数量}
+    """
+    roomsDic = {}  # 键为"X室"，值为出现次数
+
     for h in hourseList:
         try:
-            # 检查 rooms_desc 的类型
+            # 处理户型描述字段（可能是JSON字符串或列表）
             if isinstance(h.rooms_desc, str):
-                # 如果是字符串，尝试解析为 JSON
+                # 若为字符串，尝试解析为列表（如"['1', '2']" -> ['1', '2']）
                 rooms = json.loads(h.rooms_desc)
             elif isinstance(h.rooms_desc, list):
-                # 如果已经是列表，直接使用
+                # 若已是列表，直接使用
                 rooms = h.rooms_desc
             else:
-                # 其他类型（如 None）则跳过
+                # 其他类型（如None）则跳过
                 continue
 
-            # 统计房间数
+            # 统计每个户型的出现次数（格式化为"X室"）
             for room in rooms:
-                roomsDic[room + '室'] = roomsDic.get(room + '室', 0) + 1
-        except Exception as e:
-            print(f"解析 rooms_desc 失败: {e}")
-            continue  # 跳过错误数据
+                key = f"{room}室"  # 转换为"1室"、"2室"等格式
+                roomsDic[key] = roomsDic.get(key, 0) + 1
 
+        except Exception as e:
+            # 捕获解析异常（如JSON格式错误），跳过错误数据
+            print(f"解析 rooms_desc 失败: {e}")
+            continue
+
+    # 转换为指定格式的结果列表
     return [{'name': k, 'value': v} for k, v in roomsDic.items()]
 
 
-# utils/getPageData.py
-
 def getTagsData(hourseList):
-    tagsDic = {}
+    """
+    统计房屋标签的出现次数，用于词云等展示
+    :param hourseList: 房屋信息列表
+    :return: 统计结果列表，每个元素为{'name': '标签名', 'value': 出现次数}
+    """
+    tagsDic = {}  # 键为标签名，值为出现次数
+
     for h in hourseList:
         try:
-            # 处理 tags 可能是字符串或列表的情况
+            # 处理标签字段（可能是JSON字符串或列表）
             if isinstance(h.tags, str):
+                # 若为字符串，尝试解析为列表
                 tags = json.loads(h.tags)
             elif isinstance(h.tags, list):
+                # 若已是列表，直接使用
                 tags = h.tags
             else:
-                continue  # 跳过无效数据
+                # 其他类型则跳过
+                continue
 
-            # 统计标签出现次数
+            # 统计每个标签的出现次数
             for tag in tags:
                 tagsDic[tag] = tagsDic.get(tag, 0) + 1
+
         except Exception as e:
+            # 捕获解析异常，跳过错误数据
             print(f"解析标签失败: {e}")
             continue
 
@@ -497,27 +570,34 @@ def getTagsData(hourseList):
 
 
 def getYearAnalysisData(hourseList):
-    yearDic = {}
-    for h in hourseList:
-        # 先判断日期是否为空或无效
-        if not h.open_date or str(h.open_date).strip() in ['', 'N/A', 'nan']:
-            continue  # 跳过空值或无效日期
+    """
+    统计房屋开盘年份的分布情况（按年份升序排列）
+    :param hourseList: 房屋信息列表
+    :return: 统计结果列表，每个元素为{'name': '年份', 'value': 数量}
+    """
+    yearDic = {}  # 键为年份字符串（如"2020"），值为数量
 
-        # 提取年份（假设open_date格式为YYYY-MM-DD）
+    for h in hourseList:
+        # 跳过空值或无效日期（如空字符串、'N/A'等）
+        if not h.open_date or str(h.open_date).strip() in ['', 'N/A', 'nan']:
+            continue
+
         try:
+            # 从日期中提取年份（假设格式为"YYYY-MM-DD"）
             year = h.open_date.split('-')[0]
-            # 简单验证年份格式（4位数字）
+            # 验证年份格式（4位数字）
             if len(year) == 4 and year.isdigit():
-                # 统计每年的数量
+                # 累加年份计数
                 if year in yearDic:
                     yearDic[year] += 1
                 else:
                     yearDic[year] = 1
+
         except (AttributeError, IndexError):
-            # 处理无法分割的异常情况（如格式错误）
+            # 处理异常（如日期格式错误导致无法分割）
             continue
 
-    # 转换为列表并按年份排序（升序）
+    # 按年份升序排序并转换为指定格式
     resData = []
     for key in sorted(yearDic.keys()):
         resData.append({
@@ -526,9 +606,13 @@ def getYearAnalysisData(hourseList):
         })
     return resData
 
+
 def get_type_char_data():
+    """返回房屋类型和装修情况的统计函数引用"""
     return getTypeCharDataOne, getTypeCharDataTwo
+
 
 # 房屋装修情况分析数据获取函数
 def getDecorationAnalysisData(hourseList):
+    """获取房屋装修情况的统计数据（调用通用统计函数）"""
     return getDicData(hourseList, 'hourseDecoration')
