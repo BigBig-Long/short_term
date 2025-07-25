@@ -241,12 +241,8 @@ def getPriceCharOneData(hourseList):
 
 from collections import defaultdict
 
-from collections import defaultdict
-
-
 def getDetailCharOne(hourseList):
     """
-    (按要求修改版)
     统计房型数量，并完全跳过无法识别或为空的数据。
     - 翻译 '1'-'5' 为中文。
     - 合并 '6' 及以上为 "五室以上"。
@@ -301,7 +297,7 @@ def getDetailCharOne(hourseList):
 
     return resData
 
-# 这是修正后的版本，请用它替换您现有的 getDetailCharTwo 函数
+# 这是修正后的版本，替换现有的 getDetailCharTwo 函数
 def getDetailCharTwo(hourseList, type):
     """
     统计房屋列表中不同面积区间的房屋数量 (重构修复版)。
@@ -350,7 +346,7 @@ def getDetailCharTwo(hourseList, type):
         except (ValueError, TypeError):
             continue
 
-        # 遍历区间进行统计 (这是正确的逻辑)
+        # 遍历区间进行统计
         for i, (label, lower_bound, upper_bound) in enumerate(bins):
             if lower_bound <= area < upper_bound:
                 yData[i] += 1
@@ -402,86 +398,13 @@ def getDicData(hourseList, fild):
         })
     return resData
 
-
-def getTypeCharDataTwo(hourseList):
-    """获取房屋类型统计数据（调用通用统计函数）"""
-    return getDicData(hourseList, 'hourseType')
-
-
 def getTypeCharDataOne(hourseList):
     """获取房屋装修情况统计数据（调用通用统计函数）"""
     return getDicData(hourseList, 'hourseDecoration')
 
-
-def getAnthorCharOne(hourseList):
-    """
-    统计特定时间字段为空的房屋所在城市分布
-    :param hourseList: 房屋信息列表
-    :return: 两个列表，分别为城市名列表和对应城市的房屋数量列表
-    """
-    cityDic = {}
-    for i in hourseList:
-        # 筛选时间字段为'0000-00-00 00:00:00'的房屋
-        if i.on_time == '0000-00-00 00:00:00':
-            # 统计城市出现次数
-            if cityDic.get(i.city, -1) == -1:
-                cityDic[i.city] = 1
-            else:
-                cityDic[i.city] += 1
-    # 返回城市名列表和对应的数量列表
-    return list(cityDic.keys()), list(cityDic.values())
-
-
-def getAnthorCharTwo(hourseList):
-    """
-    统计房屋销售状态分布（在售/已售/出租中/已出租/预售/其他）
-    :param hourseList: 房屋信息列表
-    :return: 统计结果列表，每个元素为{'name': 状态名, 'value': 计数}
-    """
-    sale_statusDic = {}
-    for h in hourseList:
-        # 根据销售状态编码映射为中文名称并计数
-        if h.sale_status == '1':
-            key = '在售'
-        elif h.sale_status == '2':
-            key = '已售'
-        elif h.sale_status == '3':
-            key = '出租中'
-        elif h.sale_status == '4':
-            key = '已出租'
-        elif h.sale_status == '5':
-            key = '预售'
-        elif h.sale_status == '6':
-            key = '其他'
-        else:
-            continue  # 跳过未定义的状态
-
-        # 更新计数
-        if sale_statusDic.get(key, -1) == -1:
-            sale_statusDic[key] = 1
-        else:
-            sale_statusDic[key] += 1
-
-    # 转换为指定格式的结果列表
-    resData = []
-    for key, value in sale_statusDic.items():
-        resData.append({
-            'name': key,
-            'value': value
-        })
-    return resData
-
-
-def getAnthorCharThree(hourseList):
-    """
-    提取房屋标签的名称和对应数量列表（用于图表展示）
-    :param hourseList: 房屋信息列表
-    :return: 两个列表，分别为标签名称列表和对应数量列表
-    """
-    # 先通过通用函数获取标签统计结果，再拆分名称和数量
-    tag_data = getDicData(hourseList, 'tags')
-    return [x['name'] for x in tag_data], [x['value'] for x in tag_data]
-
+def getTypeCharDataTwo(hourseList):
+    """获取房屋类型统计数据（调用通用统计函数）"""
+    return getDicData(hourseList, 'hourseType')
 
 # utils/getPageData.py
 def getRegionData(hourseList):
@@ -535,6 +458,39 @@ def getRegionData(hourseList):
         'series': series  # 堆叠图数据系列
     }
 
+def getRoomsData(hourseList):
+    """
+    统计房屋户型（几室）的分布情况
+    :param hourseList: 房屋信息列表
+    :return: 统计结果列表，每个元素为{'name': 'X室', 'value': 数量}
+    """
+    roomsDic = {}  # 键为"X室"，值为出现次数
+
+    for h in hourseList:
+        try:
+            # 处理户型描述字段（可能是JSON字符串或列表）
+            if isinstance(h.rooms_desc, str):
+                # 若为字符串，尝试解析为列表（如"['1', '2']" -> ['1', '2']）
+                rooms = json.loads(h.rooms_desc)
+            elif isinstance(h.rooms_desc, list):
+                # 若已是列表，直接使用
+                rooms = h.rooms_desc
+            else:
+                # 其他类型（如None）则跳过
+                continue
+
+            # 统计每个户型的出现次数（格式化为"X室"）
+            for room in rooms:
+                key = f"{room}室"  # 转换为"1室"、"2室"等格式
+                roomsDic[key] = roomsDic.get(key, 0) + 1
+
+        except Exception as e:
+            # 捕获解析异常（如JSON格式错误），跳过错误数据
+            print(f"解析 rooms_desc 失败: {e}")
+            continue
+
+    # 转换为指定格式的结果列表
+    return [{'name': k, 'value': v} for k, v in roomsDic.items()]
 
 def getRegionPriceStackData(hourseList):
     """
@@ -595,42 +551,6 @@ def getRegionPriceStackData(hourseList):
 
     return result
 
-
-def getRoomsData(hourseList):
-    """
-    统计房屋户型（几室）的分布情况
-    :param hourseList: 房屋信息列表
-    :return: 统计结果列表，每个元素为{'name': 'X室', 'value': 数量}
-    """
-    roomsDic = {}  # 键为"X室"，值为出现次数
-
-    for h in hourseList:
-        try:
-            # 处理户型描述字段（可能是JSON字符串或列表）
-            if isinstance(h.rooms_desc, str):
-                # 若为字符串，尝试解析为列表（如"['1', '2']" -> ['1', '2']）
-                rooms = json.loads(h.rooms_desc)
-            elif isinstance(h.rooms_desc, list):
-                # 若已是列表，直接使用
-                rooms = h.rooms_desc
-            else:
-                # 其他类型（如None）则跳过
-                continue
-
-            # 统计每个户型的出现次数（格式化为"X室"）
-            for room in rooms:
-                key = f"{room}室"  # 转换为"1室"、"2室"等格式
-                roomsDic[key] = roomsDic.get(key, 0) + 1
-
-        except Exception as e:
-            # 捕获解析异常（如JSON格式错误），跳过错误数据
-            print(f"解析 rooms_desc 失败: {e}")
-            continue
-
-    # 转换为指定格式的结果列表
-    return [{'name': k, 'value': v} for k, v in roomsDic.items()]
-
-
 def getTagsData(hourseList):
     """
     统计房屋标签的出现次数，用于词云等展示
@@ -664,6 +584,72 @@ def getTagsData(hourseList):
     # 转换为词云所需格式
     return [{'name': k, 'value': v} for k, v in tagsDic.items()]
 
+def getAnthorCharOne(hourseList):
+    """
+    统计特定时间字段为空的房屋所在城市分布
+    :param hourseList: 房屋信息列表
+    :return: 两个列表，分别为城市名列表和对应城市的房屋数量列表
+    """
+    cityDic = {}
+    for i in hourseList:
+        # 筛选时间字段为'0000-00-00 00:00:00'的房屋
+        if i.on_time == '0000-00-00 00:00:00':
+            # 统计城市出现次数
+            if cityDic.get(i.city, -1) == -1:
+                cityDic[i.city] = 1
+            else:
+                cityDic[i.city] += 1
+    # 返回城市名列表和对应的数量列表
+    return list(cityDic.keys()), list(cityDic.values())
+
+def getAnthorCharTwo(hourseList):
+    """
+    统计房屋销售状态分布（在售/已售/出租中/已出租/其他）
+    :param hourseList: 房屋信息列表
+    :return: 统计结果列表，每个元素为{'name': 状态名, 'value': 计数}
+    """
+    sale_statusDic = {}
+    for h in hourseList:
+        # 根据销售状态编码映射为中文名称并计数
+        if h.sale_status == '1':
+            key = '在售'
+        elif h.sale_status == '2':
+            key = '已售'
+        elif h.sale_status == '3':
+            key = '出租中'
+        elif h.sale_status == '4':
+            key = '已出租'
+        elif h.sale_status == '5':
+            key = '预售'
+        elif h.sale_status == '6':
+            key = '其他'
+        else:
+            continue  # 跳过未定义的状态
+
+        # 更新计数
+        if sale_statusDic.get(key, -1) == -1:
+            sale_statusDic[key] = 1
+        else:
+            sale_statusDic[key] += 1
+
+    # 转换为指定格式的结果列表
+    resData = []
+    for key, value in sale_statusDic.items():
+        resData.append({
+            'name': key,
+            'value': value
+        })
+    return resData
+
+def getAnthorCharThree(hourseList):
+    """
+    提取房屋标签的名称和对应数量列表（用于图表展示）
+    :param hourseList: 房屋信息列表
+    :return: 两个列表，分别为标签名称列表和对应数量列表
+    """
+    # 先通过通用函数获取标签统计结果，再拆分名称和数量
+    tag_data = getDicData(hourseList, 'tags')
+    return [x['name'] for x in tag_data], [x['value'] for x in tag_data]
 
 def getYearAnalysisData(hourseList):
     """
@@ -677,7 +663,6 @@ def getYearAnalysisData(hourseList):
         # 跳过空值或无效日期（如空字符串、'N/A'等）
         if not h.open_date or str(h.open_date).strip() in ['', 'N/A', 'nan']:
             continue
-
         try:
             # 从日期中提取年份（假设格式为"YYYY-MM-DD"）
             year = h.open_date.split('-')[0]
@@ -702,11 +687,9 @@ def getYearAnalysisData(hourseList):
         })
     return resData
 
-
 def get_type_char_data():
     """返回房屋类型和装修情况的统计函数引用"""
     return getTypeCharDataOne, getTypeCharDataTwo
-
 
 # 房屋装修情况分析数据获取函数
 def getDecorationAnalysisData(hourseList):
