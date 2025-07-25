@@ -310,63 +310,77 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="col-lg-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="header-title mb-4">各城市房源个数</h5>
+
+                        <div class="col-lg-4" style="width: 800px">
+                            <div class="card" style="width: 800px">
+{#                                下面的是白底色的宽和高的大小       #}
+                                <div class="card-body" style=" width: 800px"  >
+
+                                <h5 class="header-title mb-4">旅游型城市和非旅游型城市 | 重工业和服务型城市对比</h5>
+
                                     <div id="mainTwo" style="width:100%;height:335px">
 
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="header-title mb-4">详情地址词云图</h5>
-                                    <div id="mainTwo" style="width:100%;height:335px">
-                                        <img style="width:100%" src="/static/address_cloud.jpg" alt="">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
+
+{#                        <div class="col-lg-4">#}
+{#                            <div class="card">#}
+{#                                <div class="card-body">#}
+{#                                    <h5 class="header-title mb-4">详情地址词云图</h5>#}
+{#                                    <div id="mainTwo" style="width:100%;height:335px">#}
+{#                                        <img style="width:100%" src="/static/address_cloud.jpg" alt="">#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
 
                     </div>
                     <!-- end row -->
 
-                    <div class="row">
+                    <div class="row" style="height: 480px">
                         <div class="col-lg-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="header-title mb-4">预测结果统计</h5>
 
-                                    <div class="table-responsive">
-                                        <table class="table table-centered table-hover mb-0">
-                                            <thead>
-                                            <tr>
-                                                <th scope="col">ID</th>
-                                                <th scope="col">城市</th>
-                                                <th scope="col">预测价格</th>
-                                                <th scope="col">用户名</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {% for i in historyList %}
-                                                <tr>
-                                                    <th scope="row">
-                                                        <a href="#">{{ i[0] }}</a>
-                                                    </th>
-                                                    <td>{{ i[1] }}</td>
-                                                    <td>
-                                                        <div class="badge badge-soft-danger">${{ i[2] }}</div>
-                                                    </td>
-                                                    <td>{{ username }}</td>
-                                                </tr>
-                                            {% endfor %}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                            <div class="card">
+                                <div class="card-body" style="height: 460px">
+                                    <h5 class="header-title mb-4" >预测结果统计</h5>
+                                        <div class="chart-box" style="width: 100%;height: 100%">
+{#                                            <div class="chart-title" >交易量折线图</div>#}
+                                            <div id="sales" class="chart" style="width: 1200px;height: 380px"></div>
+                                        </div>
+
+{#                                    <div class="table-responsive">#}
+{#                                        <table class="table table-centered table-hover mb-0">#}
+{#                                            <thead>#}
+{#                                            <tr>#}
+{#                                                <th scope="col">ID</th>#}
+{#                                                <th scope="col">城市</th>#}
+{#                                                <th scope="col">预测价格</th>#}
+{#                                                <th scope="col">用户名</th>#}
+{#                                            </tr>#}
+{#                                            </thead>#}
+{#                                            <tbody>#}
+{#                                            {% for i in historyList %}#}
+{#                                                <tr>#}
+{#                                                    <th scope="row">#}
+{#                                                        <a href="#">{{ i[0] }}</a>#}
+{#                                                    </th>#}
+{#                                                    <td>{{ i[1] }}</td>#}
+{#                                                    <td>#}
+{#                                                        <div class="badge badge-soft-danger">${{ i[2] }}</div>#}
+{#                                                    </td>#}
+{#                                                    <td>{{ username }}</td>#}
+{#                                                </tr>#}
+{#                                            {% endfor %}#}
+{#                                            </tbody>#}
+{#                                        </table>#}
+{#                                    </div>#}
                                 </div>
+
+
+
                             </div>
                         </div>
 
@@ -786,43 +800,225 @@
     option && myChart.setOption(option);
 
 </script>
+
 <script>
-    var chartDom = document.getElementById('mainTwo');
-    var myChart = echarts.init(chartDom);
-    var option;
+var chartDom = document.getElementById('mainTwo');
+var myChart = echarts.init(chartDom);
+var option;
 
-    option = {
-        title: {
-            text: '房屋占比'
+option = {
+  color: ['#67F9D8', '#FFE434', '#56A3F1', '#FF917C'],
+
+  legend: {
+      data: ['旅游型城市', '非旅游型城市', '重工业城市', '服务型城市'],
+      top: '-2%',
+      left: 'center'
+    },
+  radar: [
+    {
+      // 左侧：旅游 vs 非旅游
+      indicator: [
+        { text: '2018' },
+        { text: '2019' },
+        { text: '2020' },
+        { text: '2021' },
+        { text: '2022' },
+        { text: '2023' },
+        { text: '2024' }
+      ],
+      center: ['25%', '50%'],
+      radius: 120,
+      startAngle: 90,
+      splitNumber: 4,
+      shape: 'circle',
+      axisName: {
+        formatter: '【{value}】',
+        color: '#428BD4'
+      },
+      splitArea: {
+        areaStyle: {
+          color: ['#77EADF', '#26C3BE', '#64AFE9', '#428BD4'],
+          shadowColor: 'rgba(0, 0, 0, 0.2)',
+          shadowBlur: 10
+        }
+      },
+      axisLine: {
+        lineStyle: {
+          color: 'rgba(211, 253, 250, 0.8)'
+        }
+      },
+      splitLine: {
+        lineStyle: {
+          color: 'rgba(211, 253, 250, 0.8)'
+        }
+      }
+    },
+    {
+      // 右侧：重工业 vs 服务型
+      indicator: [
+        { text: '2018', max: 90000 },
+        { text: '2019', max: 90000 },
+        { text: '2020', max: 90000 },
+        { text: '2021', max: 90000 },
+        { text: '2022', max: 90000 },
+        { text: '2023', max: 90000 },
+        { text: '2024', max: 90000 }
+      ],
+      center: ['75%', '50%'],
+      radius: 120,
+      axisName: {
+        color: '#fff',
+        backgroundColor: '#666',
+        borderRadius: 3,
+        padding: [3, 5]
+      }
+    }
+  ],
+  series: [
+    {
+      type: 'radar',
+      emphasis: {
+        lineStyle: { width: 4 }
+      },
+      data: [
+        {
+          value: [36724, 38511, 42300, 54010, 41260, 36360, 36820],
+          name: '旅游型城市'
         },
-        tooltip: {
-            trigger: 'item',
-        },
-        legend: {
-            data: ['城市个数'],
-            right: 0
-        },
-        radar: {
-            // shape: 'circle',
-            indicator: {{ radarOne | tojson }}
-        },
-        series: [
-            {
-                name: '城市个数',
-                type: 'radar',
-                data: [
-                    {
-                        value: {{ radarTwo  }},
-                        name: 'Allocated Budget'
-                    }
-                ]
+        {
+          value: [46680, 44770, 41900, 49090, 40750, 37400, 38730],
+          name: '非旅游型城市',
+          areaStyle: {
+            color: 'rgba(255, 228, 52, 0.6)'
+          }
+        }
+      ]
+    },
+    {
+      type: 'radar',
+      radarIndex: 1,
+      data: [
+        {
+          value: [25728, 23680, 21015, 23400, 18940, 17490, 16310],
+          name: '重工业城市',
+          symbol: 'rect',
+          symbolSize: 12,
+          lineStyle: {
+            type: 'dashed'
+          },
+          label: {
+            show: true,
+            formatter: function (params) {
+              return params.value;
             }
-        ]
-    };
+          }
+        },
+        {
+          value: [64571, 61202, 56900, 72008, 56543, 52538, 54380],
+          name: '服务型城市',
+          areaStyle: {
+            color: new echarts.graphic.RadialGradient(0.1, 0.6, 1, [
+              { color: 'rgba(255, 145, 124, 0.1)', offset: 0 },
+              { color: 'rgba(255, 145, 124, 0.9)', offset: 1 }
+            ])
+          }
+        }
+      ]
+    }
+  ]
+};
 
-    option && myChart.setOption(option);
+option && myChart.setOption(option);
+
 
 </script>
+
+
+
+
+<script>
+var chartDom = document.getElementById('sales');
+var myChart = echarts.init(chartDom);
+var option;
+
+option = {
+
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      label: {
+        backgroundColor: '#6a7985'
+      }
+    }
+  },
+  legend: {
+    data: ['一线城市', '二线城市', '三线城市', 'Direct', 'Search Engine']
+  },
+  toolbox: {
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: [
+    {
+      type: 'category',
+      boundaryGap: false,
+      data: ['2018', '2019', '2020', '2021', '2022', '2023', '2024']
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value'
+    }
+  ],
+  series: [
+    {
+      name: '一线城市',
+      type: 'line',
+      stack: 'Total',
+      areaStyle: {},
+      emphasis: {
+        focus: 'series'
+      },
+      data: [92036, 88812, 97265, 81149, 83120, 84115, 83714]
+    },
+    {
+      name: '二线城市',
+      type: 'line',
+      stack: 'Total',
+      areaStyle: {},
+      emphasis: {
+        focus: 'series'
+      },
+      data: [42114, 40004, 40915, 34296, 36659, 37778, 38027]
+    },
+    {
+      name: '三线城市',
+      type: 'line',
+      stack: 'Total',
+      areaStyle: {},
+      emphasis: {
+        focus: 'series'
+      },
+      data: [31886, 30467, 29655, 27206, 24169, 26719, 27297]
+    }
+  ]
+};
+
+option && myChart.setOption(option);
+</script>
+
+
+
+
+
 <script>
     var chartDom = document.getElementById('mainLast');
     var myChart = echarts.init(chartDom);

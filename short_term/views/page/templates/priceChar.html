@@ -252,7 +252,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="card">
                                 <div class="card-body">
                                     <h4 class="header-title">{{ defaultCity }} - 总价区间</h4>
@@ -277,13 +277,27 @@
                         <div class="col-6">
                             <div class="card">
                                 <div class="card-body">
-                                    <h4 class="header-title">城市房价分布对比</h4>
+                                    <h4 class="header-title">城市房价分布</h4>
                                     <div id="mainFive" style="width: 100%;height:450px">
 
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="header-title">城市房价占比</h4>
+                                    <div id="mainSix" style="width: 100%;height:450px">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
 
 
                     </div> <!-- end row -->
@@ -890,7 +904,7 @@
     // 配置项
     var option = {
         title: {
-            text: '城市房价分布对比',
+            text: '城市房价分布',
             left: 'center'
         },
         tooltip: {
@@ -931,6 +945,93 @@
     window.addEventListener('resize', function() {
         myChart.resize();
     });
+</script>
+
+
+<script>
+    var chartDom = document.getElementById('mainSix');
+    var myChart = echarts.init(chartDom);
+    var option;
+
+    // 直接使用d2作为密度图数据源
+    var priceDistributionData = {{ d2 | safe }};
+
+    // 获取所有城市和价格区间
+    var cities = Object.keys(priceDistributionData);
+    var allBins = Object.keys(priceDistributionData[cities[0]]);
+
+    // 构建适合密度图的格式 [[区间1, 城市1密度, 城市2密度...], [区间2, 城市1密度, 城市2密度...], ...]
+    var densitySeries = [];
+    for (var i = 0; i < allBins.length; i++) {
+        var bin = allBins[i];
+        var point = [bin, 0];
+        for (var j = 0; j < cities.length; j++) {
+            var city = cities[j];
+            point[1] += priceDistributionData[city][bin];  // 累加各城市在该区间的密度
+        }
+        densitySeries.push(point);
+    }
+
+    option = {
+        title: {
+            text: '城市房价占比',
+            left: 'center',
+            textStyle: {
+                fontWeight: 'bold',
+                fontSize: 18
+            }
+        },
+        tooltip: {
+            trigger: 'axis',
+            formatter: function (params) {
+                return `区间：${params[0].name}<br/>${params[0].seriesName}：${(params[0].value).toFixed(1)}%`;
+            }
+        },
+        legend: {
+            data: cities,
+            top: 30
+        },
+        xAxis: {
+            type: 'category',
+            data: allBins,
+            axisLabel: {
+                interval: 0,
+                rotate: 45,
+                fontSize: 12,
+                color: '#666'
+            }
+        },
+        yAxis: {
+            type: 'value',
+            name: '占比',
+            axisLine: {
+                lineStyle: {
+                    color: '#999'
+                }
+            }
+        },
+        series: cities.map(function(city, index) {
+            return {
+                name: city,
+                type: 'line',  // 使用线图展示密度分布
+                smooth: true,  // 平滑曲线
+                data: allBins.map(function(bin) {
+                    return priceDistributionData[city][bin] * 100;  // 转换为百分比
+                }),
+                itemStyle: {
+                    color: getColorByIndex(index)  // 为每个城市分配不同颜色
+                }
+            };
+        })
+    };
+
+    // 生成不同颜色函数
+    function getColorByIndex(index) {
+        var colors = ['#5470C6', '#91CC75', '#FAC858', '#EE6666', '#73C0DE', '#3BA272', '#FC8452', '#9A60B4', '#EA7CCC'];
+        return colors[index % colors.length];
+    }
+
+    option && myChart.setOption(option);
 </script>
 
 

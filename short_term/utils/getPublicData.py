@@ -101,6 +101,11 @@ cityList = [
     {'province': '澳门特别行政区', 'city': ['澳门', '离岛']}
 ]
 
+def getHouseSalesData():
+    sale = querys('select * from house_sales',[],'select')
+    # print(sale)
+    return sale
+
 
 def getUserHisotryData(username):
     user = querys('select * from user where user_name = %s', [username], 'select')[0]

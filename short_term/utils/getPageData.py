@@ -180,87 +180,125 @@ def getPriceCharOneData(hourseList):
     return X,Y
 
 
+
+from collections import defaultdict
+
+from collections import defaultdict
+
+
 def getDetailCharOne(hourseList):
-    roomsDic = {}
+    """
+    (按要求修改版)
+    统计房型数量，并完全跳过无法识别或为空的数据。
+    - 翻译 '1'-'5' 为中文。
+    - 合并 '6' 及以上为 "五室以上"。
+    - 忽略所有空值和不符合上述规则的数据。
+    """
+    # 定义房型数字到文本的映射关系
+    room_map = {
+        '1': '一室',
+        '2': '两室',
+        '3': '三室',
+        '4': '四室',
+        '5': '五室',
+    }
+
+    type_counts = defaultdict(int)
+
     for i in hourseList:
+        # 1. 如果整个房子的 rooms_desc 属性不存在、为None或为空列表，则直接跳过这个房子。
+        if not hasattr(i, 'rooms_desc') or not i.rooms_desc:
+            continue
+
+        # 2. 遍历一个房子的所有房型描述
         for room in i.rooms_desc:
-            if roomsDic.get(room,-1) == -1:
-                roomsDic[room] = 1
+            room_str = str(room).strip()
+
+            # 3. 如果房型描述是空字符串，也跳过
+            if not room_str:
+                continue
+
+            # 4. 优先匹配 1-5 室
+            if room_str in room_map:
+                type_name = room_map[room_str]
+                type_counts[type_name] += 1
+            # 5. 如果不是 1-5 室，尝试看是否为更大的数字
             else:
-                roomsDic[room] += 1
+                try:
+                    # 只有大于等于6的数字才进行统计
+                    if int(room_str) >= 6:
+                        type_counts['五室以上'] += 1
+                    # 其他所有情况（如'0'或无法转换的文本）都将被忽略，不做任何事
+                except ValueError:
+                    # 如果 room_str 不能转换为整数 (例如是'别墅'等文本)，也跳过
+                    continue
+
+    # 6. 将统计结果转换为 ECharts 需要的列表格式
     resData = []
-    for key,value in roomsDic.items():
+    for name, value in type_counts.items():
         resData.append({
-            'name':key,
-            'value':value
+            'name': name,
+            'value': value
         })
+
     return resData
 
-def getDetailCharTwo(hourseList,type):
-    if type=='big':
-        xData = [
-            '80-100',
-            '100-110',
-            '110-120',
-            '120-130',
-            '130-140',
-            '140-150',
-            '150-160',
-            '160-170',
-            '170-180',
-            '200-n'
-        ]
-    else:
-        xData = [
-            '0-40',
-            '40-60',
-            '60-80',
-            '80-100',
-            '100-120',
-            '120-150',
-            '150-n'
-        ]
-    yData = [0 for x in range(len(xData))]
-    for i in hourseList:
-        if len(i.area_range) == 1 :continue
-        if type == 'big':
-            if float(i.area_range[1]) >= 80 and float(i.area_range[1]) < 100:
-                yData[0] +=1
-            elif float(i.area_range[1]) <= 110:
-                yData[1] +=1
-            elif float(i.area_range[1]) <= 120:
-                yData[2] +=1
-            elif float(i.area_range[1]) <= 130:
-                yData[3] +=1
-            elif float(i.area_range[1]) <= 140:
-                yData[4] +=1
-            elif float(i.area_range[1]) <= 150:
-                yData[5] +=1
-            elif float(i.area_range[1]) <= 160:
-                yData[6] +=1
-            elif float(i.area_range[1]) <= 170:
-                yData[7] +=1
-            elif float(i.area_range[1]) <= 180:
-                yData[8] +=1
-            elif float(i.area_range[1]) >= 200:
-                yData[9] +=1
-        else:
-            if float(i.area_range[0]) <= 40:
-                yData[0] +=1
-            elif float(i.area_range[0]) <= 80:
-                yData[1] +=1
-            elif float(i.area_range[0]) <= 100:
-                yData[2] +=1
-            elif float(i.area_range[0]) <= 120:
-                yData[3] +=1
-            elif float(i.area_range[0]) <= 150:
-                yData[4] +=1
-            elif float(i.area_range[0]) <= 150:
-                yData[5] +=1
-            elif float(i.area_range[0]) > 150:
-                yData[6] +=1
+# 这是修正后的版本，请用它替换您现有的 getDetailCharTwo 函数
+def getDetailCharTwo(hourseList, type):
+    """
+    统计房屋列表中不同面积区间的房屋数量 (重构修复版)。
+    """
+    # 定义不同分析类型的配置
+    # 格式: (标签, 区间下限(包含), 区间上限(不包含))
+    # None 代表无穷大或无穷小
+    configs = {
+        'big': {
+            'area_index': 1,  # 使用最大面积 i.area_range[1]
+            'bins': [
+                ('80-100', 80, 100), ('100-110', 100, 110),
+                ('110-120', 110, 120), ('120-130', 120, 130),
+                ('130-140', 130, 140), ('140-150', 140, 150),
+                ('150-160', 150, 160), ('160-170', 160, 170),
+                ('170-180', 170, 180), ('180-200', 180, 200),
+                ('200-n', 200, float('inf')),  # 使用无穷大表示上限
+            ]
+        },
+        'small': {
+            'area_index': 0,  # 使用最小面积 i.area_range[0]
+            'bins': [
+                ('0-40', float('-inf'), 40), ('40-60', 40, 60),
+                ('60-80', 60, 80), ('80-100', 80, 100),
+                ('100-120', 100, 120), ('120-150', 120, 150),
+                ('150-n', 150, float('inf')),
+            ]
+        }
+    }
 
-    return xData,yData
+    config = configs.get(type, configs['small'])  # 如果type无效，默认使用'small'
+    area_index = config['area_index']
+    bins = config['bins']
+
+    xData = [b[0] for b in bins]
+    yData = [0] * len(xData)
+
+    for hourse in hourseList:
+        # 数据校验
+        if not hasattr(hourse, 'area_range') or not isinstance(hourse.area_range, list) or len(
+                hourse.area_range) <= area_index:
+            continue
+
+        try:
+            area = float(hourse.area_range[area_index])
+        except (ValueError, TypeError):
+            continue
+
+        # 遍历区间进行统计 (这是正确的逻辑)
+        for i, (label, lower_bound, upper_bound) in enumerate(bins):
+            if lower_bound <= area < upper_bound:
+                yData[i] += 1
+                break  # 找到区间后就停止内层循环，避免重复计数
+
+    return xData, yData
 
 
 def getDicData(hourseList, fild):
